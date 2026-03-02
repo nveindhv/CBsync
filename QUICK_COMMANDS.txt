@@ -1,0 +1,27 @@
+php artisan kms:token:test
+
+php artisan kms:get:products --limit=5 --offset=0 --max-pages=1
+php artisan kms:get:businesses --limit=5 --offset=0 --max-pages=1
+
+php artisan kms:get:finances --type=order --limit=5 --offset=0 --max-pages=1
+# other examples:
+# php artisan kms:get:finances --type=invoice --limit=5 --offset=0 --max-pages=1
+# php artisan kms:get:finances --type=credit --limit=5 --offset=0 --max-pages=1
+
+php artisan kms:get:finance 1
+
+# returngoods/index vereist minimaal 1 filter parameter:
+php artisan kms:get:returngoods --all --limit=5 --offset=0 --max-pages=1
+# of specifieker:
+# php artisan kms:get:returngoods --exported=0 --limit=5 --offset=0 --max-pages=1
+# php artisan kms:get:returngoods --datetime=2025-01-01 --limit=5 --offset=0 --max-pages=1
+# php artisan kms:get:returngoods --type=business --id=1552 --limit=5 --offset=0 --max-pages=1
+# php artisan kms:get:returngoods --type=location --id=1 --limit=5 --offset=0 --max-pages=1
+
+php artisan kms:get:return-statuses
+
+php artisan kms:get:stock-products --limit=5 --offset=0 --max-pages=1
+# stock mutations heeft minimaal een datum OF product filter nodig (EAN/article number)
+php artisan kms:get:stock-mutations --from=2025-01-01 --limit=5 --offset=0 --max-pages=1
+# php artisan kms:get:stock-mutations --ean=8717575259475 --limit=5 --offset=0 --max-pages=1
+# php artisan kms:get:stock-mutations --article-number=500050065080560 --limit=5 --offset=0 --max-pages=1
