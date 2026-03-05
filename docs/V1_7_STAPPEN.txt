@@ -1,0 +1,55 @@
+CBsync v1.7 patch (KMS reverse capabilities: minimal vs rich + key aliases)
+
+Doel
+- Reverse engineeren welke velden in KMS echt updatebaar zijn, per product/familie.
+- Dit doet 2 probes:
+  1) minimal payload (alleen identity + 1 veld)
+  2) rich payload (identity + context velden uit snapshot + 1 veld)
+- En het probeert key-aliases (camelCase + snake_case) voor een paar velden.
+
+Inhoud zip
+- app/Console/Commands/KmsReverseCapabilities.php
+- docs/V1_7_STAPPEN.txt
+
+Installeren
+1) Pak de zip uit in de root van je Laravel project (CBsync_v1)
+   - Zorg dat de paden exact kloppen.
+2) Run:
+   php artisan optimize:clear
+3) Check:
+   php artisan list | findstr kms:reverse
+   -> je ziet: kms:reverse:capabilities
+
+Gebruik
+1) Basis (default mode=both):
+   php artisan kms:reverse:capabilities 100010001099360 --ean=8054085183792 --debug
+
+2) Alleen minimal:
+   php artisan kms:reverse:capabilities 100010001099360 --ean=8054085183792 --mode=minimal
+
+3) Alleen rich:
+   php artisan kms:reverse:capabilities 100010001099360 --ean=8054085183792 --mode=rich
+
+4) Specifieke velden:
+   php artisan kms:reverse:capabilities 100010001099360 --ean=8054085183792 --fields=price,brand,color,size,unit --mode=both --debug
+
+Wat je eruit haalt
+- Als iets minimal=IGNORED maar rich=UPDATED -> jullie sync moet context fields meesturen (unit/brand/color/size/type_*).
+- Als iets in beide IGNORED blijft -> waarschijnlijk niet updatebaar (of zit achter andere endpoint/rechten/flow).
+
+Key aliases
+Deze logical fields proberen meerdere request keys:
+- purchasePrice: purchasePrice, purchase_price
+- supplierName : supplierName, supplier_name
+- active       : active, is_active
+- deleted      : deleted, is_deleted
+- vAT          : vAT, vAt, vat
+
+Rich payload context
+In rich mode kopieert hij, als aanwezig in snapshot:
+- unit, brand, color, size
+- type_number/type_name (en camelCase varianten) indien beschikbaar
+
+Let op
+- Dit is voor TEST omgeving. Het command probeert te revert-en tenzij je --no-revert gebruikt.
+- Als je rate limits hebt: verhoog --sleep=...

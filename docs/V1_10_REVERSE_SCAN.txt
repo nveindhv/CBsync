@@ -1,0 +1,33 @@
+V1.10 – Reverse scan (KMS families/layers)
+
+Wat doet dit?
+- Scant een range KMS producten via getProducts(offset/limit)
+- Groepeert op "family/type_number" (default: eerste 11 chars van articleNumber)
+- Probeert per unieke family (max N families) of updates werken:
+  A) rich payload ZONDER type_number/type_name
+  B) rich payload MET type_number/type_name (snake + camel)
+- Classificeert families in:
+  - updateable_without_type
+  - requires_type
+  - read_only_or_ignored
+
+Install:
+1) Unzip patch in project root (waar artisan staat)
+2) php artisan optimize:clear
+3) php artisan list | findstr kms:reverse:scan
+
+Run voorbeelden:
+- Scan 10k producten, probe max 250 families:
+  php artisan kms:reverse:scan --offset=0 --scan=10000 --page-size=200 --max-families=250 --debug
+
+- Start later in KMS catalog:
+  php artisan kms:reverse:scan --offset=40000 --scan=10000 --max-families=500
+
+Output:
+- JSON + CSV in:
+  storage/app/kms_reverse_scan/report_YYYYmmdd_HHMMSS.json
+  storage/app/kms_reverse_scan/report_YYYYmmdd_HHMMSS.csv
+
+Let op:
+- Dit doet createUpdate + verify calls. Als je max-families verhoogt, neemt API load flink toe.
+- Gebruik --no-revert alleen als je bewust testdata wil laten staan.

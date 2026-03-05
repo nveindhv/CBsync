@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Console\Commands;
-
+\1
+use App\Services\Kms\KmsPayloadEnricher;
 /**
  * Create or update products in KMS (bulk).
  *
@@ -51,8 +51,8 @@ class KmsPostProductCreateUpdate extends KmsBasePostCommand
             'is_deleted'      => $this->option('is-deleted') !== null ? (int) $this->option('is-deleted') : null,
         ], fn ($v) => $v !== null && $v !== '');
 
-        return [
+        return KmsPayloadEnricher::enrichCreateUpdatePayload([
             'products' => [$product],
-        ];
+        ], (int) config('kms.family_len', 11), (string) config('kms.type_name_template', 'FAMILY {type_number}'));
     }
 }

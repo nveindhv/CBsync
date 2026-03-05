@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\Kms\KmsClient;
+use App\Services\Kms\KmsPayloadEnricher;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -275,6 +276,14 @@ class SyncProductsToKms extends Command
             'is_deleted' => 0,
         ];
         if ($ean !== '' && $ean !== '0') $payloadProduct['ean'] = $ean;
+
+        // v1.9: ensure matrix products actually update (type_number/type_name derived from article prefix)
+        if ((bool) config('kms.sync_enrich_type_fields', true)) {
+            $familyLen = (int) config('kms.family_len', 11);
+            $tpl = (string) config('kms.type_name_template', 'FAMILY {type_number}');
+            $payloadProduct = KmsPayloadEnricher::enrichProduct($payloadProduct, $familyLen, $tpl);
+        }
+
 
         if ($dryRun) {
             $this->comment('[KMS_CREATEUPDATE] DRY-RUN (no call made)');

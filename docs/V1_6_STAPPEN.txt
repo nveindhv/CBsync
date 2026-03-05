@@ -1,0 +1,72 @@
+CBsync v1.6 patch – Reverse-engineer “lagen” (field update capabilities)
+
+DOEL
+- Jij wil niet “random scannen”, maar exact reverse-engineeren:
+  1) Bestaat er in KMS een basis/familie/model record los van de 15-digit variant?
+  2) Welke velden kun je updaten met alleen de variant (en evt. ean)?
+  3) Welke velden vereisen extra context (unit/brand/color/size/type_number/type_name)?
+
+Wat we nu al HARD weten uit jullie eigen tests/logs:
+- getProducts(articleNumber=<kortere prefix>) geeft 0 terug voor 9/10/11/.. prefixes, maar de UI toont wél “basis” records (bv. 100010001) => grote kans: die basis is GEEN product-row in kms/product/getProducts, maar een “type/model/part family” entiteit.
+- createUpdate kan een nieuwe variant pas “echt” aanmaken als type_number + type_name is meegegeven (jullie probe toont dat exact).
+- Updates:
+  - MINIMAL payload kan soms werken, maar niet altijd; daarom is de juiste aanpak: capabilities testen per veld (en per product) met VERIFY.
+
+WAT ZIT ER IN DEZE PATCH
+- Nieuwe artisan command:
+  kms:reverse:capabilities
+  Die test per veld (1 voor 1) of het updatebaar is via createUpdate, en revert daarna terug (tenzij --no-revert).
+
+INSTALL (drop-in)
+1) Unzip deze patch in je project root (CBsync_v1):
+   - Hij voegt alleen nieuwe files toe onder app/Console/Commands en docs.
+2) Zorg dat Laravel commands automatisch geladen worden:
+   - In app/Console/Kernel.php moet dit bestaan (standaard):
+     $this->load(__DIR__.'/Commands');
+   - Zo niet: voeg de command class toe in $commands.
+3) Run:
+   php artisan optimize:clear
+   php artisan list | findstr kms:reverse
+
+GEBRUIK (DIRECTE TESTS, GEEN SCANS)
+A) Capabilities testen voor een BESTAANDE variant (bijv. HYDROWEA):
+   php artisan kms:reverse:capabilities 502060375398540 --ean=5420011783894 --debug
+
+   -> Output toont per veld: UPDATED of IGNORED.
+   -> Hij revert automatisch terug.
+
+B) Test alleen specifieke velden:
+   php artisan kms:reverse:capabilities 502060375398540 --ean=5420011783894 --fields=price,name,brand,color,size --debug
+
+C) Geen revert (alleen doen op test data!):
+   php artisan kms:reverse:capabilities 502060375398540 --ean=5420011783894 --no-revert --fields=price --debug
+
+D) Test op een “basis UI artikel” (bv. 100010001) om te checken of getProducts dat überhaupt kent:
+   php artisan kms:reverse:capabilities 100010001 --fields=name,brand --debug
+
+   - Als hij zegt “Product not found”: dan is dat basis-record NIET via kms/product/getProducts beschikbaar.
+
+NEXT STEPS (BELANGRIJK: DIT IS JULLIE ‘LAGEN’ MAP)
+1) Kies 3 representatieve reeksen:
+   - Reeks A: UI heeft basis + varianten (SIXTON: 100010001 en varianten 100010001099360 etc).
+   - Reeks B: Alleen varianten (zoals HYDROWEA die je net aanmaakte) -> check.
+   - Reeks C: HAVEP (50305005609 varianten) -> check.
+
+2) Voor ELKE reeks:
+   a) Pak 1 bestaande variant in KMS.
+   b) Run kms:reverse:capabilities op die variant.
+   c) Noteer per veld of het UPDATED of IGNORED is.
+
+3) Conclusie bouwen (jullie “laag” model):
+   - Als bv. name/brand/color/size allemaal UPDATED met minimal payload, dan is er geen “laag” beperking voor updates.
+   - Als bv. name/brand IGNORED maar price UPDATED, dan is er wél een “laag/permissions” of “required context” patroon.
+
+4) Als basis-record (zoals 100010001) niet vindbaar is via getProducts:
+   - Dan moeten we in de KMS docs/API zoeken naar “type/model/part family” endpoints.
+   - Geef mij 2–3 screenshots van de KMS “basis product” edit pagina (bovenste tab “Product gegevens”) + welke velden daar te wijzigen zijn.
+
+BELANGRIJKE WAARSCHUWING
+- Deze probe gebruikt createUpdate. Dat is altijd “success:true” zelfs als er niets wijzigt.
+  Daarom vergelijken we AFTER met BEFORE per veld.
+- Draai dit alleen op TEST.
+

@@ -1,0 +1,39 @@
+CBsync v1.8 PATCH (KMS reverse capabilities)
+
+Doel
+- kms:reverse:capabilities kan nu ook matrix/family gevallen testen waarbij KMS updates negeert tenzij
+  type_number/type_name wordt meegestuurd.
+
+Wat is nieuw in v1.8
+1) type_number / type_name support (force of derive)
+   - --type-number=XXXX         Force type_number + typeNumber in payloads
+   - --type-name="..."          Force type_name + typeName (default: "FAMILY <type_number>")
+   - --family-len=11            Als type_number niet geforceerd is en rich/both draait: derive van article prefix
+   - --no-derive-type           Zet derivation uit
+
+2) id-based optioneel
+   - --include-id               Voeg snapshot id mee in payload (soms vereist in sommige KMS installs)
+
+Installeren
+- Pak deze zip uit in de root van je Laravel project (CBsync_v1)
+- Zorg dat app/Console/Commands automatisch geladen wordt (standaard in Laravel).
+- Run: php artisan optimize:clear
+
+Voorbeelden
+1) Normaal (default both; rich derivation aan)
+   php artisan kms:reverse:capabilities 502060375398540 --ean=5420011783894 --fields=price,brand,color,size,unit --mode=both --debug
+
+2) Geforceerd type_number/type_name (aanrader voor HYDROWEA / matrix families)
+   php artisan kms:reverse:capabilities 502060375398540 --ean=5420011783894 --fields=price --mode=rich ^
+     --type-number=50206037539 --type-name="FAMILY 50206037539" --debug
+
+3) Test met id in payload
+   php artisan kms:reverse:capabilities 502060375398540 --ean=5420011783894 --fields=price --mode=rich --include-id --debug
+
+Interpretatie
+- minimal=UPDATED  -> sync kan minimal sturen
+- minimal=IGNORED & rich=UPDATED -> sync moet context (unit/brand/color/size) meesturen
+- minimal=IGNORED & rich=IGNORED -> probeer:
+    a) rich + type-number/type-name
+    b) rich + include-id
+    c) als dit ook faalt: waarschijnlijk KMS-rechten/config/source-lock, of andere update endpoint nodig

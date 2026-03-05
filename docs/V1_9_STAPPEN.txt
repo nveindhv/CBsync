@@ -1,0 +1,48 @@
+CBsync v1.9 PATCH (repo-targeted): matrix-proof KMS createUpdate updates
+===============================================================
+
+Wat lost dit op?
+- Reverse engineering bewijs: sommige KMS-producten (matrix/family) negeren updates (price/stock/etc)
+  tenzij type_number + type_name meegestuurd worden.
+- v1.9 zorgt dat SyncProductsToKms (en de kms:post:product createUpdate command) automatisch
+  type_number/type_name toevoegen door het af te leiden uit het artikelnummer.
+
+1) Installeren (drop-in)
+------------------------
+Pak deze zip uit in de root van je Laravel project (CBsync).
+Bestanden worden toegevoegd/overschreven:
+- app/Services/KMS/KmsPayloadEnricher.php (nieuw)
+- app/Console/Commands/SyncProductsToKms.php (patch)
+- app/Console/Commands/KmsPostProductCreateUpdate.php (patch)
+- config/kms.php (patch: extra config keys)
+
+2) .env opties (optioneel)
+--------------------------
+# familie lengte (default 11)
+KMS_FAMILY_LEN=11
+
+# hoe we type_name opbouwen als ERP geen echte type_name levert
+KMS_TYPE_NAME_TEMPLATE="FAMILY {type_number}"
+
+# master switch voor SyncProductsToKms enrichment (default true)
+KMS_SYNC_ENRICH_TYPE_FIELDS=true
+
+3) Cache clear
+--------------
+php artisan optimize:clear
+
+4) Snelle proof test (handmatig)
+--------------------------------
+- Een product dat eerder IGNORED was zonder type_* moet nu updaten als je via createUpdate gaat.
+
+Bijv: jouw HYDROWEA case werkte alleen met type_number/type_name.
+
+5) Run sync
+-----------
+Voorbeeld:
+php artisan sync:products:kms --target=5 --offset=0 --page-size=200 --max-pages=5 --debug
+
+Let op:
+- De sync verifieert al via getProducts before/after (tenzij --no-verify).
+- Hierdoor zie je meteen of KMS weer silent ignore doet.
+

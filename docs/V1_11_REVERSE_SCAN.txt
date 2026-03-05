@@ -1,0 +1,24 @@
+V1.11 Reverse Scan Hotfix
+========================
+
+What changed vs v1.10:
+- Fix: reverse scan now supports multiple createUpdate endpoint paths and auto-retries on HTTP 404.
+  Some KMS installs expose createUpdate as:
+    - kms/product/createUpdateProducts
+  while others expose:
+    - kms/product/createUpdate
+  and some may return 404 for blocked/unsupported endpoints.
+
+New options:
+- --createupdate-path=...      (default: kms/product/createUpdateProducts)
+- --createupdate-path-alt=...  (default: kms/product/createUpdate)
+
+Recommended usage:
+php artisan kms:reverse:scan --offset=0 --scan=10000 --page-size=200 --max-families=250 --debug
+
+If you still see 404, try swapping:
+php artisan kms:reverse:scan --offset=0 --scan=2000 --max-families=50 --createupdate-path=kms/product/createUpdate --createupdate-path-alt=kms/product/createUpdateProducts --debug
+
+Note:
+- This command scans KMS because it guarantees the product exists before mutating.
+- For ERP-first analysis, use your existing ERP->KMS sync run with a high offset, or extend with an ERP scan command later.
