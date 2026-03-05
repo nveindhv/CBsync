@@ -1,0 +1,1670 @@
+{
+    "meta": {
+        "timestamp": "2026-03-05T20:06:41+00:00",
+        "offset": 0,
+        "scan": 2000,
+        "page_size": 200,
+        "family_len": 11,
+        "max_families": 50,
+        "delta": 0.11,
+        "revert": true
+    },
+    "summary": {
+        "updateable_without_type": 39,
+        "requires_type": 0,
+        "read_only_or_ignored": 11,
+        "errors": 0
+    },
+    "families": {
+        "50005006508": {
+            "type_number": 50005006508,
+            "sample": {
+                "id": 68693,
+                "articleNumber": "500050065080560",
+                "ean": "5708628288200",
+                "name": "MASCOT JAMAICA T-shirt",
+                "supplierId": 48,
+                "supplierName": "MASCOT",
+                "unit": "STK",
+                "brand": "MASCOT",
+                "color": "zwart",
+                "size": "XL",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50305032849": {
+            "type_number": 50305032849,
+            "sample": {
+                "id": 58098,
+                "articleNumber": "503050328498420",
+                "ean": "8717575259475",
+                "name": "HAVEP 8730 Werkbroek",
+                "supplierId": 32,
+                "supplierName": "HAVEP",
+                "unit": "STK",
+                "brand": "HAVEP",
+                "color": "charcoal grey\/zwart",
+                "size": "42",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50705001600": {
+            "type_number": 50705001600,
+            "sample": {
+                "id": 66151,
+                "articleNumber": "507050016009334",
+                "ean": "8718732001227",
+                "name": "247 MAPLE Spijkerbroek D10",
+                "supplierId": 1,
+                "supplierName": "247 JEANS",
+                "unit": "STK",
+                "brand": "247 JEANS",
+                "color": "medium blue",
+                "size": "33-34",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006500": {
+            "type_number": 50505006500,
+            "sample": {
+                "id": 79439,
+                "articleNumber": "505050065001660",
+                "ean": "8718326007529",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006502": {
+            "type_number": 50505006502,
+            "sample": {
+                "id": 79440,
+                "articleNumber": "505050065020660",
+                "ean": "8718326007772",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006504": {
+            "type_number": 50505006504,
+            "sample": {
+                "id": 79441,
+                "articleNumber": "505050065040660",
+                "ean": "8718326007680",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006506": {
+            "type_number": 50505006506,
+            "sample": {
+                "id": 79442,
+                "articleNumber": "505050065060660",
+                "ean": "8718326007864",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006507": {
+            "type_number": 50505006507,
+            "sample": {
+                "id": 79443,
+                "articleNumber": "505050065071660",
+                "ean": "8718326007277",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006508": {
+            "type_number": 50505006508,
+            "sample": {
+                "id": 79444,
+                "articleNumber": "505050065080660",
+                "ean": "8718326007185",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006509": {
+            "type_number": 50505006509,
+            "sample": {
+                "id": 79445,
+                "articleNumber": "505050065097660",
+                "ean": "8718326007017",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "50505006519": {
+            "type_number": 50505006519,
+            "sample": {
+                "id": 79446,
+                "articleNumber": "505050065190660",
+                "ean": "8718326007369",
+                "name": "TRICORP 201007 (PPK180) Poloshirt",
+                "supplierId": 84,
+                "supplierName": "TRICORP",
+                "unit": "STK",
+                "brand": "TRICORP",
+                "color": "",
+                "size": "",
+                "price": 0
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 0,
+                    "attempt_price": 0.11,
+                    "after_price": 0
+                }
+            },
+            "classification": "read_only_or_ignored"
+        },
+        "51806000130": {
+            "type_number": 51806000130,
+            "sample": {
+                "id": 54794,
+                "articleNumber": "518060001302460",
+                "ean": "5036108214891",
+                "name": "PORTWEST C276 Veiligheidsvest",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "royal blue\/yellow",
+                "size": "S",
+                "price": 9.9
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 9.9,
+                    "attempt_price": 10.01,
+                    "after_price": 10.01
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 9.9,
+                    "attempt_price": 10.01,
+                    "after_price": 9.9
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806000502": {
+            "type_number": 51806000502,
+            "sample": {
+                "id": 54850,
+                "articleNumber": "518060005020580",
+                "ean": "5036108217649",
+                "name": "PORTWEST FR21 Overall FRAST",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "royal blue",
+                "size": "XXL",
+                "price": 89.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 90.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 89.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806000503": {
+            "type_number": 51806000503,
+            "sample": {
+                "id": 54857,
+                "articleNumber": "518060005030620",
+                "ean": "5036108249510",
+                "name": "PORTWEST FR21 Overall FRAST",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "khaki",
+                "size": "XXXL",
+                "price": 89.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 90.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 89.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806000504": {
+            "type_number": 51806000504,
+            "sample": {
+                "id": 54862,
+                "articleNumber": "518060005040580",
+                "ean": "5036108213252",
+                "name": "PORTWEST FR21 Overall FRAST",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "red",
+                "size": "XXL",
+                "price": 89.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 90.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 89.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806000505": {
+            "type_number": 51806000505,
+            "sample": {
+                "id": 54868,
+                "articleNumber": "518060005050560",
+                "ean": "5036108189113",
+                "name": "PORTWEST FR21 Overall FRAST",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "orange",
+                "size": "XL",
+                "price": 89.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 90.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 89.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806000506": {
+            "type_number": 51806000506,
+            "sample": {
+                "id": 54876,
+                "articleNumber": "518060005060580",
+                "ean": "5036108274284",
+                "name": "PORTWEST FR21 Overall FRAST",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "white",
+                "size": "XXL",
+                "price": 89.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 90.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 89.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806001225": {
+            "type_number": 51806001225,
+            "sample": {
+                "id": 54900,
+                "articleNumber": "518060012258580",
+                "ean": "5036108253319",
+                "name": "PORTWEST S467 Parka",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "orange\/black",
+                "size": "XXL",
+                "price": 39.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 39.95,
+                    "attempt_price": 40.06,
+                    "after_price": 40.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 39.95,
+                    "attempt_price": 40.06,
+                    "after_price": 39.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806001705": {
+            "type_number": 51806001705,
+            "sample": {
+                "id": 68788,
+                "articleNumber": "518060017050580",
+                "ean": "5036108125647",
+                "name": "PORTWEST R460 Parka RWS",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "orange",
+                "size": "XXL",
+                "price": 67.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 67.95,
+                    "attempt_price": 68.06,
+                    "after_price": 68.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 67.95,
+                    "attempt_price": 68.06,
+                    "after_price": 67.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806001205": {
+            "type_number": 51806001205,
+            "sample": {
+                "id": 54890,
+                "articleNumber": "518060012050520",
+                "ean": "5036108129805",
+                "name": "PORTWEST S467 Parka",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "orange",
+                "size": "L",
+                "price": 39.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 39.95,
+                    "attempt_price": 40.06,
+                    "after_price": 40.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 39.95,
+                    "attempt_price": 40.06,
+                    "after_price": 39.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806001305": {
+            "type_number": 51806001305,
+            "sample": {
+                "id": 54912,
+                "articleNumber": "518060013050520",
+                "ean": "0",
+                "name": "PORTWEST S476 Veiligheidsvest",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "orange",
+                "size": "L",
+                "price": 9.9
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 9.9,
+                    "attempt_price": 10.01,
+                    "after_price": 10.01
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 9.9,
+                    "attempt_price": 10.01,
+                    "after_price": 9.9
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "51806001310": {
+            "type_number": 51806001310,
+            "sample": {
+                "id": 54925,
+                "articleNumber": "518060013100660",
+                "ean": "0",
+                "name": "PORTWEST S476 Veiligheidsvest",
+                "supplierId": 62,
+                "supplierName": "PORTWEST",
+                "unit": "STK",
+                "brand": "PORTWEST",
+                "color": "yellow",
+                "size": "4XL",
+                "price": 9.9
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 9.9,
+                    "attempt_price": 10.01,
+                    "after_price": 10.01
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 9.9,
+                    "attempt_price": 10.01,
+                    "after_price": 9.9
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001000109": {
+            "type_number": 10001000109,
+            "sample": {
+                "id": 8,
+                "articleNumber": "100010001099400",
+                "ean": "8054085183839",
+                "name": "SIXTON NISIDA 10037-13, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "taupe",
+                "size": "40",
+                "price": 70.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 70.95,
+                    "attempt_price": 71.06,
+                    "after_price": 71.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 70.95,
+                    "attempt_price": 71.06,
+                    "after_price": 70.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001000200": {
+            "type_number": 10001000200,
+            "sample": {
+                "id": 22,
+                "articleNumber": "100010002001400",
+                "ean": "8054085183969",
+                "name": "SIXTON NISIDA 10037-14, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "blauw",
+                "size": "40",
+                "price": 70.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 70.95,
+                    "attempt_price": 71.06,
+                    "after_price": 71.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 70.95,
+                    "attempt_price": 71.06,
+                    "after_price": 70.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001000508": {
+            "type_number": 10001000508,
+            "sample": {
+                "id": 71,
+                "articleNumber": "100010005080470",
+                "ean": "8051772576998",
+                "name": "SIXTON RIMINI 10228-04, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "47",
+                "price": 79.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 79.95,
+                    "attempt_price": 80.06,
+                    "after_price": 80.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 79.95,
+                    "attempt_price": 80.06,
+                    "after_price": 79.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001000808": {
+            "type_number": 10001000808,
+            "sample": {
+                "id": 105,
+                "articleNumber": "100010008080390",
+                "ean": "8054085182191",
+                "name": "SIXTON MONDELLO 10233-03, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "39",
+                "price": 86.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 86.95,
+                    "attempt_price": 87.06,
+                    "after_price": 87.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 86.95,
+                    "attempt_price": 87.06,
+                    "after_price": 86.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001000911": {
+            "type_number": 10001000911,
+            "sample": {
+                "id": 120,
+                "articleNumber": "100010009116410",
+                "ean": "8054085185901",
+                "name": "SIXTON MOENA 10300-01, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "roestbruin",
+                "size": "41",
+                "price": 108.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 108.95,
+                    "attempt_price": 109.06,
+                    "after_price": 109.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 108.95,
+                    "attempt_price": 109.06,
+                    "after_price": 108.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001001208": {
+            "type_number": 10001001208,
+            "sample": {
+                "id": 155,
+                "articleNumber": "100010012080390",
+                "ean": "8033959351574",
+                "name": "SIXTON KENTUCKY 52022-14, stalen neus + zool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "39",
+                "price": 52.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 52.95,
+                    "attempt_price": 53.06,
+                    "after_price": 53.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 52.95,
+                    "attempt_price": 53.06,
+                    "after_price": 52.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001001308": {
+            "type_number": 10001001308,
+            "sample": {
+                "id": 169,
+                "articleNumber": "100010013080390",
+                "ean": "8033959351444",
+                "name": "SIXTON ILLINOIS 52023-15, stalen neus + zool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "39",
+                "price": 57.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 57.95,
+                    "attempt_price": 58.06,
+                    "after_price": 58.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 57.95,
+                    "attempt_price": 58.06,
+                    "after_price": 57.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001001408": {
+            "type_number": 10001001408,
+            "sample": {
+                "id": 183,
+                "articleNumber": "100010014080390",
+                "ean": "8033737023143",
+                "name": "SIXTON VEGA 52045-02, stalen neus + zool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "39",
+                "price": 44.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 44.95,
+                    "attempt_price": 45.06,
+                    "after_price": 45.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 44.95,
+                    "attempt_price": 45.06,
+                    "after_price": 44.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001001708": {
+            "type_number": 10001001708,
+            "sample": {
+                "id": 226,
+                "articleNumber": "100010017080400",
+                "ean": "8033737022139",
+                "name": "SIXTON CUPRA 53071-19, stalen neus + zool (O2)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "40",
+                "price": 67.5
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 67.5,
+                    "attempt_price": 67.61,
+                    "after_price": 67.61
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 67.5,
+                    "attempt_price": 67.61,
+                    "after_price": 67.5
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001001808": {
+            "type_number": 10001001808,
+            "sample": {
+                "id": 239,
+                "articleNumber": "100010018080390",
+                "ean": "8033737026830",
+                "name": "SIXTON CLASS 53090-03, stalen neus + zool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "39",
+                "price": 42.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 42.95,
+                    "attempt_price": 43.06,
+                    "after_price": 43.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 42.95,
+                    "attempt_price": 43.06,
+                    "after_price": 42.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001002108": {
+            "type_number": 10001002108,
+            "sample": {
+                "id": 276,
+                "articleNumber": "100010021080480",
+                "ean": "8033737026229",
+                "name": "SIXTON STELVIO 80087-00, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "48",
+                "price": 97.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 97.95,
+                    "attempt_price": 98.06,
+                    "after_price": 98.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 97.95,
+                    "attempt_price": 98.06,
+                    "after_price": 97.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001002211": {
+            "type_number": 10001002211,
+            "sample": {
+                "id": 281,
+                "articleNumber": "100010022110410",
+                "ean": "8033737025932",
+                "name": "SIXTON STELVIO 80087-01, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "bruin",
+                "size": "41",
+                "price": 97.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 97.95,
+                    "attempt_price": 98.06,
+                    "after_price": 98.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 97.95,
+                    "attempt_price": 98.06,
+                    "after_price": 97.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001002308": {
+            "type_number": 10001002308,
+            "sample": {
+                "id": 294,
+                "articleNumber": "100010023080420",
+                "ean": "8033737026274",
+                "name": "SIXTON SELLA 80088-00, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "42",
+                "price": 91.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 91.95,
+                    "attempt_price": 92.06,
+                    "after_price": 92.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 91.95,
+                    "attempt_price": 92.06,
+                    "after_price": 91.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001002608": {
+            "type_number": 10001002608,
+            "sample": {
+                "id": 328,
+                "articleNumber": "100010026080400",
+                "ean": "8033737025598",
+                "name": "SIXTON TERRANOVA 80128-01, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "40",
+                "price": 124.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 124.95,
+                    "attempt_price": 125.06,
+                    "after_price": 125.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 124.95,
+                    "attempt_price": 125.06,
+                    "after_price": 124.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001003211": {
+            "type_number": 10001003211,
+            "sample": {
+                "id": 408,
+                "articleNumber": "100010032110480",
+                "ean": "8033737029237",
+                "name": "SIXTON CORVARA 81087-05, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "bruin",
+                "size": "48",
+                "price": 85.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 85.95,
+                    "attempt_price": 86.06,
+                    "after_price": 86.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 85.95,
+                    "attempt_price": 86.06,
+                    "after_price": 85.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001003408": {
+            "type_number": 10001003408,
+            "sample": {
+                "id": 424,
+                "articleNumber": "100010034080400",
+                "ean": "8051772574109",
+                "name": "SIXTON CORVARA Outdry 81087-15, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "40",
+                "price": 108.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 108.95,
+                    "attempt_price": 109.06,
+                    "after_price": 109.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 108.95,
+                    "attempt_price": 109.06,
+                    "after_price": 108.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001003508": {
+            "type_number": 10001003508,
+            "sample": {
+                "id": 436,
+                "articleNumber": "100010035080400",
+                "ean": "8033737028933",
+                "name": "SIXTON BADIA 81088-06, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "40",
+                "price": 78.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 78.95,
+                    "attempt_price": 79.06,
+                    "after_price": 79.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 78.95,
+                    "attempt_price": 79.06,
+                    "after_price": 78.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001003611": {
+            "type_number": 10001003611,
+            "sample": {
+                "id": 448,
+                "articleNumber": "100010036110400",
+                "ean": "8033959350805",
+                "name": "SIXTON BADIA 81088-07, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "bruin",
+                "size": "40",
+                "price": 78.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 78.95,
+                    "attempt_price": 79.06,
+                    "after_price": 79.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 78.95,
+                    "attempt_price": 79.06,
+                    "after_price": 78.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001003708": {
+            "type_number": 10001003708,
+            "sample": {
+                "id": 460,
+                "articleNumber": "100010037080400",
+                "ean": "8033959354520",
+                "name": "SIXTON PORTORICO 81103-03, composiet neus + anti-perforatiezool (S1P)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "40",
+                "price": 72.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 72.95,
+                    "attempt_price": 73.06,
+                    "after_price": 73.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 72.95,
+                    "attempt_price": 73.06,
+                    "after_price": 72.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001003811": {
+            "type_number": 10001003811,
+            "sample": {
+                "id": 472,
+                "articleNumber": "100010038110400",
+                "ean": "8033959352342",
+                "name": "SIXTON LABRADOR 81152-00, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "bruin",
+                "size": "40",
+                "price": 81.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 81.95,
+                    "attempt_price": 82.06,
+                    "after_price": 82.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 81.95,
+                    "attempt_price": 82.06,
+                    "after_price": 81.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001004011": {
+            "type_number": 10001004011,
+            "sample": {
+                "id": 496,
+                "articleNumber": "100010040110400",
+                "ean": "8033959352564",
+                "name": "SIXTON LAND 81153-01, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "bruin",
+                "size": "40",
+                "price": 75.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 75.95,
+                    "attempt_price": 76.06,
+                    "after_price": 76.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 75.95,
+                    "attempt_price": 76.06,
+                    "after_price": 75.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001005608": {
+            "type_number": 10001005608,
+            "sample": {
+                "id": 560,
+                "articleNumber": "100010056080400",
+                "ean": "8033737029633",
+                "name": "SIXTON VERVE 82104-06, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "40",
+                "price": 84.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 84.95,
+                    "attempt_price": 85.06,
+                    "after_price": 85.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 84.95,
+                    "attempt_price": 85.06,
+                    "after_price": 84.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001005808": {
+            "type_number": 10001005808,
+            "sample": {
+                "id": 586,
+                "articleNumber": "100010058080400",
+                "ean": "8033737029879",
+                "name": "SIXTON VIGOR 82131-01, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "40",
+                "price": 89.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 90.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 89.95,
+                    "attempt_price": 90.06,
+                    "after_price": 89.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001005938": {
+            "type_number": 10001005938,
+            "sample": {
+                "id": 598,
+                "articleNumber": "100010059383380",
+                "ean": "8054085181675",
+                "name": "SIXTON CAPRI 82149-16, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart\/beige",
+                "size": "38",
+                "price": 69.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 69.95,
+                    "attempt_price": 70.06,
+                    "after_price": 70.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 69.95,
+                    "attempt_price": 70.06,
+                    "after_price": 69.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001006038": {
+            "type_number": 10001006038,
+            "sample": {
+                "id": 611,
+                "articleNumber": "100010060383370",
+                "ean": "8033959352205",
+                "name": "SIXTON CANTU 82151-00, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart\/beige",
+                "size": "37",
+                "price": 72.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 72.95,
+                    "attempt_price": 73.06,
+                    "after_price": 73.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 72.95,
+                    "attempt_price": 73.06,
+                    "after_price": 72.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001006138": {
+            "type_number": 10001006138,
+            "sample": {
+                "id": 625,
+                "articleNumber": "100010061383370",
+                "ean": "8033959356210",
+                "name": "SIXTON LUGANO 82201-00, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart\/beige",
+                "size": "37",
+                "price": 73.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 73.95,
+                    "attempt_price": 74.06,
+                    "after_price": 74.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 73.95,
+                    "attempt_price": 74.06,
+                    "after_price": 73.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001006208": {
+            "type_number": 10001006208,
+            "sample": {
+                "id": 638,
+                "articleNumber": "100010062080490",
+                "ean": "8054085181781",
+                "name": "SIXTON CAPRI XL 83149-17, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "49",
+                "price": 116.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 116.95,
+                    "attempt_price": 117.06,
+                    "after_price": 117.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 116.95,
+                    "attempt_price": 117.06,
+                    "after_price": 116.95
+                }
+            },
+            "classification": "updateable_without_type"
+        },
+        "10001006408": {
+            "type_number": 10001006408,
+            "sample": {
+                "id": 655,
+                "articleNumber": "100010064080360",
+                "ean": "8051772576035",
+                "name": "SIXTON TRAINER 83178-04, composiet neus + anti-perforatiezool (S3)",
+                "supplierId": 75,
+                "supplierName": "SIXTON",
+                "unit": "PAAR",
+                "brand": "SIXTON",
+                "color": "zwart",
+                "size": "36",
+                "price": 82.95
+            },
+            "probe": {
+                "without_type": {
+                    "success": true,
+                    "updated": true,
+                    "before_price": 82.95,
+                    "attempt_price": 83.06,
+                    "after_price": 83.06
+                },
+                "with_type": {
+                    "success": true,
+                    "updated": false,
+                    "before_price": 82.95,
+                    "attempt_price": 83.06,
+                    "after_price": 82.95
+                }
+            },
+            "classification": "updateable_without_type"
+        }
+    }
+}

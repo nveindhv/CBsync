@@ -25,8 +25,8 @@ class KmsReverseScan extends Command
         {--offset=0 : KMS getProducts offset to start from}
         {--scan=10000 : How many products to scan from KMS (not how many to mutate)}
         {--page-size=200 : Page size for KMS getProducts paging}
-        {--createupdate-path=kms/product/createUpdateProducts : Primary createUpdate endpoint path}
-        {--createupdate-path-alt=kms/product/createUpdate : Alternate createUpdate endpoint path (used if 404)}
+        {--createupdate-path=kms/product/createUpdate : Primary createUpdate endpoint path}
+        {--createupdate-path-alt=kms/product/createUpdateProducts : Alternate createUpdate endpoint path (used if 404)}
         {--family-len=11 : Derive type_number from first N chars of articleNumber}
         {--max-families=250 : Max unique families to probe (mutate+verify). Increase with care}
         {--delta=0.11 : Price delta to use for probing}
@@ -53,7 +53,7 @@ class KmsReverseScan extends Command
         $debug = (bool)$this->option('debug');
         $doRevert = !(bool)$this->option('no-revert');
 
-        $this->info('=== KMS REVERSE SCAN (v1.10) ===');
+        $this->info('=== KMS REVERSE SCAN (v1.14) ===');
         $this->line("offset={$offset} scan={$scan} pageSize={$pageSize} familyLen={$familyLen} maxFamilies={$maxFamilies} delta={$delta} revert=" . ($doRevert ? 'YES' : 'NO'));
 
         $client = $this->resolveKmsClient();
@@ -195,7 +195,7 @@ class KmsReverseScan extends Command
             }
         }
 
-        // 3) write report
+        // 3) write report (storage/app + also project-root/kms_reverse_scan for convenience)
         $ts = Carbon::now()->format('Ymd_His');
         $jsonPath = "kms_reverse_scan/report_{$ts}.json";
         Storage::disk('local')->put($jsonPath, json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -217,9 +217,31 @@ class KmsReverseScan extends Command
         $csvPath = "kms_reverse_scan/report_{$ts}.csv";
         Storage::disk('local')->put($csvPath, implode("\n", $lines));
 
+        // Many users expect reports in project-root/kms_reverse_scan (not storage/app).
+        // So we copy them there as well.
+        try {
+            $rootDir = base_path('kms_reverse_scan');
+            if (!is_dir($rootDir)) {
+                @mkdir($rootDir, 0777, true);
+            }
+
+            $jsonAbs = Storage::disk('local')->path($jsonPath);
+            $csvAbs  = Storage::disk('local')->path($csvPath);
+
+            @copy($jsonAbs, $rootDir . DIRECTORY_SEPARATOR . basename($jsonPath));
+            @copy($csvAbs,  $rootDir . DIRECTORY_SEPARATOR . basename($csvPath));
+        } catch (\Throwable $e) {
+            // Non-fatal: storage/app still contains the report.
+            if ($debug) {
+                $this->warn('Could not copy reports to project root: ' . $e->getMessage());
+            }
+        }
+
         $this->info("\n=== DONE ===");
         $this->line("JSON: storage/app/{$jsonPath}");
         $this->line("CSV : storage/app/{$csvPath}");
+        $this->line("JSON (project root): kms_reverse_scan/" . basename($jsonPath));
+        $this->line("CSV  (project root): kms_reverse_scan/" . basename($csvPath));
         $this->line("Summary: " . json_encode($report['summary']));
 
         return self::SUCCESS;
@@ -260,6 +282,54 @@ private function createUpdateAltPath(): ?string
         }
 
         throw new \RuntimeException('Unsupported KmsClient API: expected post/call/request/send methods.');
+    }
+
+    /**
+     * Call createUpdate against configured paths (primary then alternate on 404).
+     *
+     * @return array{0:mixed,1:string} [response, usedPath]
+     */
+    private function kmsCallCreateUpdate($client, array $payload, bool $debug): array
+    {
+        $paths = array_values(array_filter([
+            $this->createUpdatePath(),
+            $this->createUpdateAltPath(),
+        ]));
+
+        // Deduplicate while preserving order.
+        $seen = [];
+        $paths = array_values(array_filter($paths, function ($p) use (&$seen) {
+            if (isset($seen[$p])) {
+                return false;
+            }
+            $seen[$p] = true;
+            return true;
+        }));
+
+        $last = null;
+        foreach ($paths as $path) {
+            try {
+                $resp = $this->kmsCall($client, "POST", $path, $payload, $debug);
+                return [$resp, $path];
+            } catch (\Throwable $e) {
+                $last = $e;
+                $msg = $e->getMessage();
+
+                // Only fall back on 404.
+                if (str_contains($msg, "HTTP 404") || str_contains($msg, " 404:") || str_contains($msg, "\"status\":404")) {
+                    if ($debug) {
+                        $this->line("CREATEUPDATE path \"{$path}\" returned 404; trying next (if any)...");
+                    }
+                    continue;
+                }
+                throw $e;
+            }
+        }
+
+        if ($last) {
+            throw $last;
+        }
+        throw new \RuntimeException("No createUpdate paths configured.");
     }
 
     private function kmsGetProductsPage($client, int $offset, int $limit, bool $debug): array
@@ -369,7 +439,7 @@ if ($resp === null) {
             $product['price'] = $beforePrice;
             $revertPayload = ['products' => [$product]];
             if ($debug) $this->line("REVERT payload (withType=" . ($withType?'yes':'no') . "): " . json_encode($revertPayload));
-            $this->kmsCall($client, 'POST', $this->createUpdatePath(), $revertPayload, $debug);
+            $this->kmsCallCreateUpdate($client, $revertPayload, $debug);
         }
 
         return [
