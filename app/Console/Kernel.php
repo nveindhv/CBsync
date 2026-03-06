@@ -7,17 +7,12 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
-    /**
-     * Explicitly register custom commands.
-     * This avoids discovery edge cases while your project structure is still noisy.
-     *
-     * @var array<int, class-string>
-     */
     protected $commands = [
         \App\Console\Commands\KmsReverseCapabilities::class,
-        \App\Console\Commands\KmsReverseScan::class,
         \App\Console\Commands\KmsReverseLayers::class,
         \App\Console\Commands\KmsReverseProduct::class,
+        \App\Console\Commands\KmsReverseScan::class,
+        \App\Console\Commands\KmsRepairProductVisibility::class,
     ];
 
     protected function schedule(Schedule $schedule): void
