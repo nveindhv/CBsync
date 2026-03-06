@@ -8,8 +8,10 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
-     * Force-register important custom commands.
-     * This is extra safety on top of $this->load(__DIR__.'/Commands').
+     * The Artisan commands provided by your application.
+     *
+     * Explicit registration is used here because command discovery in this
+     * project is currently unreliable.
      *
      * @var array<int, class-string>
      */
@@ -33,7 +35,7 @@ class Kernel extends ConsoleKernel
      */
     protected function commands(): void
     {
-        $this->load(__DIR__.'/Commands');
+        $this->load(__DIR__ . '/Commands');
 
         if (file_exists(base_path('routes/console.php'))) {
             require base_path('routes/console.php');
