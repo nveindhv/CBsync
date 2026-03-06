@@ -1,6 +1,5 @@
 <?php
 
-\1
 use App\Services\Kms\KmsPayloadEnricher;
 /**
  * Create or update products in KMS (bulk).
@@ -12,7 +11,7 @@ use App\Services\Kms\KmsPayloadEnricher;
  */
 class KmsPostProductCreateUpdate extends KmsBasePostCommand
 {
-    protected $signature = 'kms:post:product 
+    protected $signature = 'kms:post:product
         {--file= : Path to JSON payload file (overrides other options)}
         {--reference-id= : ReferenceId (eigen systeem)}
         {--article-number= : Artikelnummer}

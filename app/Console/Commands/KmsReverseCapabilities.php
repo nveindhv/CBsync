@@ -75,7 +75,7 @@ class KmsReverseCapabilities extends Command
 
         $fields = $this->parseFields($this->option('fields'));
 
-        $this->line('=== KMS FIELD CAPABILITY REVERSE ENGINEER (v1.11) ===');
+        $this->line('=== KMS FIELD CAPABILITY REVERSE ENGINEER (v1.12) ===');
         $this->line('Article: ' . $article);
         if ($ean) $this->line('EAN    : ' . $ean);
         $this->line('Mode   : ' . implode('+', $modes));
@@ -108,14 +108,14 @@ class KmsReverseCapabilities extends Command
             }
 
             foreach ($modes as $mode) {
-                [$status, $usedKey] = $this->probeField(
+                [$status, $usedKey, $omitTypeUsed] = $this->probeField(
                     $kms, $base, $article, $ean, $mode, $logicalField, $original, $mutated, $sleepMs, $debug
                 );
                 $results[$logicalField][$mode] = $status;
 
                 // Revert to original to keep test clean.
                 if (!$this->option('no-revert') && $status === 'UPDATED' && $usedKey) {
-                    $revertPayload = $this->buildPayload($article, $ean, $base, $mode, [$usedKey => $original]);
+                    $revertPayload = $this->buildPayload($article, $ean, $base, $mode, [$usedKey => $original], $omitTypeUsed);
                     if ($debug) {
                         $this->line('REVERT_PAYLOAD (' . $mode . ', key=' . $usedKey . '):');
                         $this->line(json_encode($revertPayload, JSON_UNESCAPED_SLASHES));
@@ -184,7 +184,7 @@ class KmsReverseCapabilities extends Command
 
     /**
      * Probe one logical field in one mode.
-     * Returns: [status, usedKey]
+     * Returns: [status, usedKey, omitTypeUsed]
      */
     private function probeField(
         KmsClient $kms,
@@ -216,10 +216,15 @@ class KmsReverseCapabilities extends Command
 
             $after = $this->fetchOne($kms, $article, $ean, $debug);
             $afterValue = $after ? Arr::get($after, $logicalField) : null;
-
-            if ($this->valuesDifferent($original, $afterValue)) {
+            // Consider UPDATED only when the read-back matches the attempted value.
+            // If the read-back becomes null/missing, treat as UNKNOWN (potentially destructive).
+            if ($afterValue === null && $this->valuesDifferent($original, $afterValue)) {
+                $this->warn(sprintf('CHANGED_TO_NULL ? (rich, key=%s) before=%s after=%s', $key, $this->stringify($original), $this->stringify($afterValue)));
+                return ['UNKNOWN', $key, false];
+            }
+            if ($afterValue !== null && $this->valuesEqual($afterValue, $mutated)) { 
                 $this->info('UPDATED ✔ (' . $mode . ', key=' . $key . ') before=' . $this->stringify($original) . ' after=' . $this->stringify($afterValue));
-                return ['UPDATED', $key];
+                                return ['UPDATED', $key, false];
             }
 
             $this->warn('IGNORED ✖ (' . $mode . ', key=' . $key . ') before=' . $this->stringify($original) . ' after=' . $this->stringify($afterValue));
@@ -237,17 +242,20 @@ class KmsReverseCapabilities extends Command
 
                 $after2 = $this->fetchOne($kms, $article, $ean, $debug);
                 $afterValue2 = $after2 ? Arr::get($after2, $logicalField) : null;
-
-                if ($this->valuesDifferent($original, $afterValue2)) {
+                    if ($afterValue2 === null && $this->valuesDifferent($original, $afterValue2)) {
+                        $this->warn(sprintf('CHANGED_TO_NULL ? (rich, key=%s, no_type retry) before=%s after=%s', $key, $this->stringify($original), $this->stringify($afterValue2)));
+                        return ['UNKNOWN', $key, true];
+                    }
+                    if ($afterValue2 !== null && $this->valuesEqual($afterValue2, $mutated)) { 
                     $this->info('UPDATED ✔ (rich, key=' . $key . ', no_type retry) before=' . $this->stringify($original) . ' after=' . $this->stringify($afterValue2));
-                    return ['UPDATED', $key];
+                                        return ['UPDATED', $key, true];
                 }
 
                 $this->warn('IGNORED ✖ (rich, key=' . $key . ', no_type retry) before=' . $this->stringify($original) . ' after=' . $this->stringify($afterValue2));
             }
         }
 
-        return ['IGNORED', null];
+        return ['IGNORED', null, false];
     }
 
     /**
@@ -426,6 +434,11 @@ class KmsReverseCapabilities extends Command
         if (is_numeric($a) && is_numeric($b)) {
             return abs(((float) $a) - ((float) $b)) > 0.00001;
         }
+
+    private function valuesEqual($a, $b): bool
+    {
+        return !$this->valuesDifferent($a, $b);
+    }
         return $a !== $b;
     }
 

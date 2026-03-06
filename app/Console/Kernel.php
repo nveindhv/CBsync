@@ -2,30 +2,41 @@
 
 namespace App\Console;
 
-use App\Console\Commands\SyncProducts;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
     /**
-     * The Artisan commands provided by your application.
+     * Force-register important custom commands.
+     * This is extra safety on top of $this->load(__DIR__.'/Commands').
      *
      * @var array<int, class-string>
      */
     protected $commands = [
-        SyncProducts::class,
+        \App\Console\Commands\KmsReverseCapabilities::class,
+        \App\Console\Commands\KmsReverseScan::class,
+        \App\Console\Commands\KmsReverseLayers::class,
+        \App\Console\Commands\KmsReverseProduct::class,
     ];
 
+    /**
+     * Define the application's command schedule.
+     */
     protected function schedule(Schedule $schedule): void
     {
-        // intentionally empty (out of scope)
+        //
     }
 
+    /**
+     * Register the commands for the application.
+     */
     protected function commands(): void
     {
         $this->load(__DIR__.'/Commands');
 
-        require base_path('routes/console.php');
+        if (file_exists(base_path('routes/console.php'))) {
+            require base_path('routes/console.php');
+        }
     }
 }
