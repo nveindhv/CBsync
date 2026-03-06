@@ -1,4 +1,17 @@
 <?php
 
-// Intentionally kept minimal.
-// Do not register Artisan commands manually here for this project.
+use Illuminate\Support\Facades\Artisan;
+
+/*
+|--------------------------------------------------------------------------
+| Console Routes
+|--------------------------------------------------------------------------
+|
+| Keep this file boring and safe.
+| Do not call Artisan::starting() here; that broke command bootstrapping.
+|
+*/
+
+Artisan::command('inspire', function () {
+    $this->comment('Keep going.');
+})->purpose('Display a small motivation line');

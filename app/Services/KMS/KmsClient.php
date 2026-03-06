@@ -11,24 +11,11 @@ class KmsClient
     {
     }
 
-    /**
-     * Convenience passthrough so commands can call $client->getAccessToken().
-     */
     public function getAccessToken(): string
     {
         return $this->auth->getAccessToken();
     }
 
-    /**
-     * Build the base request with auth header.
-     *
-     * Note:
-     * - Historically this project used Bearer auth (Http::withToken).
-     * - KMS docs/demo also accept an 'access_token' header.
-     *
-     * To keep backward compatibility (GET commands already working) AND align with
-     * the docs, we send BOTH.
-     */
     private function request(): PendingRequest
     {
         $token = $this->auth->getAccessToken();
@@ -36,36 +23,27 @@ class KmsClient
         return Http::withToken($token)
             ->withHeaders([
                 'access_token' => $token,
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json',
             ])
             ->acceptJson()
-            ->timeout((int) config('kms.timeout'));
+            ->timeout((int) config('kms.timeout', 30));
     }
 
-    /**
-     * POST to a KMS endpoint under the configured REST prefix.
-     *
-     * Example:
-     *   {base_url}/rest/{namespace}/kms/product/getProducts
-     */
     public function post(string $relativePath, array $payload = []): array
     {
         $baseUrl = rtrim((string) config('kms.base_url'), '/');
         $namespace = trim((string) config('kms.namespace'), '/');
-
         if ($namespace === '') {
-            throw new \RuntimeException('KMS_NAMESPACE is empty. Set it in .env (e.g. democomfortbest).');
+            throw new \RuntimeException('KMS namespace missing');
         }
 
-        $restPrefixTpl = (string) config('kms.rest_prefix');
-        $restPrefix = str_replace('{namespace}', $namespace, $restPrefixTpl);
-        $restPrefix = '/' . trim($restPrefix, '/');
-
+        $restPrefixTpl = (string) config('kms.rest_prefix', '/rest/{namespace}');
+        $restPrefix = '/' . trim(str_replace('{namespace}', $namespace, $restPrefixTpl), '/');
         $relativePath = '/' . ltrim($relativePath, '/');
         $url = $baseUrl . $restPrefix . $relativePath;
 
         $response = $this->request()->post($url, $payload);
-
-        // If the token expired, clear cache and retry once.
         if ($response->status() === 401) {
             $this->auth->forgetToken();
             $response = $this->request()->post($url, $payload);
@@ -75,9 +53,6 @@ class KmsClient
             throw new \RuntimeException("KMS request failed (POST {$relativePath}) HTTP {$response->status()}: {$response->body()}");
         }
 
-        $json = $response->json();
-
-        // Some KMS endpoints return an array root, others a dict.
-        return $json ?? [];
+        return $response->json() ?? [];
     }
 }

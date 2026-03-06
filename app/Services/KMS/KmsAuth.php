@@ -9,48 +9,56 @@ class KmsAuth
 {
     public function getAccessToken(): string
     {
-        $cacheKey = 'kms.access_token';
+        $cacheKey = 'kms_access_token:' . md5(json_encode([
+            config('kms.base_url'),
+            config('kms.namespace'),
+            config('kms.username'),
+            config('kms.client_id'),
+        ]));
 
-        return Cache::remember($cacheKey, now()->addMinutes(50), function () use ($cacheKey) {
+        return Cache::remember($cacheKey, now()->addMinutes(50), function () {
             $baseUrl = rtrim((string) config('kms.base_url'), '/');
-            $namespace = (string) config('kms.namespace');
-
+            $namespace = trim((string) config('kms.namespace'), '/');
             $tokenPathTpl = (string) config('kms.token_path');
-            // token_path may contain {namespace}
             $tokenPath = str_replace('{namespace}', $namespace, $tokenPathTpl);
-            $tokenPath = ltrim($tokenPath, '/');
+            $url = $baseUrl . '/' . ltrim($tokenPath, '/');
+
+            $payload = [
+                'grant_type' => 'password',
+                'client_id' => (string) config('kms.client_id'),
+                'client_secret' => (string) config('kms.client_secret'),
+                'username' => (string) config('kms.username'),
+                'password' => (string) config('kms.password'),
+            ];
 
             $response = Http::asForm()
-                ->timeout((int) config('kms.timeout'))
-                ->post("{$baseUrl}/{$tokenPath}", [
-                    'grant_type' => 'password',
-                    'client_id' => config('kms.client_id'),
-                    'client_secret' => config('kms.client_secret'),
-                    'username' => config('kms.username'),
-                    'password' => config('kms.password'),
-                ]);
+                ->acceptJson()
+                ->timeout((int) config('kms.timeout', 30))
+                ->post($url, $payload);
 
             if (! $response->successful()) {
-                throw new \RuntimeException("KMS token request failed (HTTP {$response->status()}): {$response->body()}");
+                throw new \RuntimeException('KMS token request failed HTTP ' . $response->status() . ': ' . $response->body());
             }
 
-            $json = $response->json();
-            if (!is_array($json) || empty($json['access_token'])) {
-                throw new \RuntimeException('KMS token response did not include access_token.');
+            $json = $response->json() ?? [];
+            $token = $json['access_token'] ?? null;
+            if (! is_string($token) || $token === '') {
+                throw new \RuntimeException('KMS token response missing access_token');
             }
 
-            // Respect expires_in if present (keep a small safety margin)
-            if (!empty($json['expires_in']) && is_numeric($json['expires_in'])) {
-                $ttl = max(60, ((int) $json['expires_in']) - 60);
-                Cache::put($cacheKey, $json['access_token'], now()->addSeconds($ttl));
-            }
-
-            return (string) $json['access_token'];
+            return $token;
         });
     }
 
     public function forgetToken(): void
     {
-        Cache::forget('kms.access_token');
+        $cacheKey = 'kms_access_token:' . md5(json_encode([
+            config('kms.base_url'),
+            config('kms.namespace'),
+            config('kms.username'),
+            config('kms.client_id'),
+        ]));
+
+        Cache::forget($cacheKey);
     }
 }
