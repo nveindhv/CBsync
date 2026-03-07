@@ -1,75 +1,65 @@
-CBsync - kleine vervolgtest op basis van bestaande kms_probe_window scan
-====================================================================
+KMS FAMILY BOOTSTRAP PATCH BUNDLE
+=================================
 
-Doel
+Dit is een losse patchbundle voor CBsync. Niet automatisch toegepast.
+Kopieer de bestanden handmatig in je projectroot.
+
+DOEL
 ----
-Niet opnieuw 10.000 ERP-regels scannen.
-Wel: uit de AL bestaande window-scan een kleine, representatieve create/update subset halen,
-zodat je gericht createUpdate gedrag op KMS kunt testen.
+Deze bundle trekt het project weg van losse probes naar 1 scan-first familieflow:
+1. KMS scans combineren
+2. ERP family dumps combineren
+3. ERP-families tegen KMS-scan mappen
+4. Parent payload opbouwen
+5. Family bootstrap probe draaien
 
-Bestand in deze zip
--------------------
-- app/Console/Commands/KmsProbeWindowSamples.php
-
-Wat deze command doet
+BESTANDEN IN DEZE ZIP
 ---------------------
-- pakt standaard de nieuwste CSV uit storage/app/kms_probe_window/window_*.csv
-- filtert op create / update / classification
-- maakt een kleine representatieve sample (standaard max 3 per merk)
-- schrijft nieuwe bestanden weg:
-  - storage/app/kms_probe_window/sample_*.csv
-  - storage/app/kms_probe_window/sample_*.json
-  - storage/app/kms_probe_window/sample_*_commands.txt  (als je --write-commands gebruikt)
+app/Support/StoragePathResolver.php
+app/Console/Commands/KmsScanCombine.php
+app/Console/Commands/ErpFamiliesCombine.php
+app/Console/Commands/KmsMapErpFamilies.php
+app/Console/Commands/KmsBuildParentPayload.php
+app/Console/Commands/KmsProbeFamilyBootstrap.php
 
-Installatie
------------
-1) Pak deze zip uit in je projectroot.
-2) Run:
-   composer dump-autoload
-   php artisan optimize:clear
-3) Check of de command zichtbaar is:
-   php artisan list | findstr kms:probe:window-samples
+docs/COMMANDS_TO_RUN.txt
+docs/WHY_THIS_BREAKS_THE_DEADLOCK.txt
+docs/COPY_PASTE_SEQUENCE.txt
 
-Aanbevolen gebruik
-------------------
-A. Maak eerst een kleine CREATE-sample uit je bestaande grote scan:
-   php artisan kms:probe:window-samples --mode=create --limit=20 --per-brand=3 --write-commands --debug
+PLAATSEN
+--------
+Kopieer vanaf de zip-root naar je Laravel projectroot.
 
-B. Alleen WEB create-kandidaten uit diezelfde scan:
-   php artisan kms:probe:window-samples --mode=create --only-classification=WEB --limit=20 --per-brand=3 --write-commands --debug
+Daarna in app/Console/Kernel.php toevoegen aan $commands:
+    \App\Console\Commands\KmsScanCombine::class,
+    \App\Console\Commands\ErpFamiliesCombine::class,
+    \App\Console\Commands\KmsMapErpFamilies::class,
+    \App\Console\Commands\KmsBuildParentPayload::class,
+    \App\Console\Commands\KmsProbeFamilyBootstrap::class,
 
-C. UPDATE-kandidaten:
-   php artisan kms:probe:window-samples --mode=update --limit=20 --per-brand=3 --write-commands --debug
+BELANGRIJK
+----------
+Deze commands zijn bewust scan-first. Dus:
+- primaire waarheid = scanbestanden op disk
+- live KMS artikel-lookups zijn alleen aanvullend
+- storage path mismatch private/public wordt afgevangen
 
-D. Op expliciete bron-CSV werken:
-   php artisan kms:probe:window-samples --csv=storage/app/kms_probe_window/window_88000_98000_20260306_080630.csv --mode=create --limit=20 --write-commands --debug
+SNELLE STAPPEN
+--------------
+1) composer dump-autoload
+2) php artisan optimize:clear
+3) php artisan kms:scan:combine --dump-json --dump-csv --debug
+4) php artisan erp:families:combine --dump-json --debug
+5) php artisan kms:map:erp-families --family=505050117 --dump-json --debug
+6) php artisan kms:build:parent-payload 505050117 --dump-json --debug
+7) php artisan kms:probe:family-bootstrap 505050117 --dump-json --debug
 
-Wat je daarna doet
-------------------
-Na een run krijg je een TXT-bestand met kant-en-klare commands.
-Open die met bijvoorbeeld:
-   type storage\app\kms_probe_window\sample_create_YYYYMMDD_HHMMSS_commands.txt
+DAARNA HERHALEN VOOR:
+- 505050111
+- 505050096
 
-Voer daarna de eerste 3-10 commands uit.
-- create-sample -> gebruikt kms:reverse:create-path
-- update-sample -> gebruikt kms:probe:upsert-flow
-
-Praktische volgorde
--------------------
-1) Start met create zonder WEB-filter:
-   php artisan kms:probe:window-samples --mode=create --limit=10 --per-brand=2 --write-commands --debug
-2) Bekijk het command-bestand.
-3) Run 3 tot 5 create-path tests.
-4) Kijk welke payloads werken / niet werken.
-5) Pas daarna pas WEB-filter toe als je classification mapping zekerder wilt testen.
-
-Waarom dit handiger is
+WAT JE MOET VERWACHTEN
 ----------------------
-- je gebruikt de al opgeslagen window-scan
-- geen zware ERP-call opnieuw nodig
-- je krijgt meteen een kleine, gemengde set testgevallen
-- je kunt mislukte create-kandidaten veel sneller analyseren
-
-Opmerking
----------
-Deze command verandert niks in ERP of KMS. Hij leest alleen CSV en maakt samples + testcommands.
+- 505050117 is de beste eerste family omdat daarvan al minstens 1 KMS-variant gezien is.
+- 505050111 en 505050096 lijken ERP-families die nog een parent/bootstrapstap nodig kunnen hebben.
+- Als parent bootstrap faalt, dan heb je eindelijk 1 centrale plek waar de failure zwart-op-wit uitgelogd wordt.
