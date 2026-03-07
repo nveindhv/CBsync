@@ -10,7 +10,7 @@ class KmsCompareFamilyFromScan extends Command
 {
     protected $signature = 'kms:compare:family-from-scan
         {articles* : Variant article numbers to compare from a KMS scan dump}
-        {source? : Optional path to KMS scan JSON file}
+        {--source= : Optional path to KMS scan JSON file}
         {--prefix-length=9 : Prefix length used as family bucket}
         {--dump-json : Write JSON result}
         {--dump-csv : Write CSV result}
@@ -20,9 +20,9 @@ class KmsCompareFamilyFromScan extends Command
 
     public function handle(): int
     {
-        $source = $this->resolveSource($this->argument('source'));
+        $source = $this->resolveSource($this->option('source'));
         if (!$source || !is_file($source)) {
-            $this->error('No KMS scan JSON found. Pass a source file or run kms:scan:products-window --dump-json first.');
+            $this->error('No KMS scan JSON found. Pass --source=... or run kms:scan:products-window --dump-json first.');
             return self::FAILURE;
         }
 
@@ -58,20 +58,7 @@ class KmsCompareFamilyFromScan extends Command
 
         $seed = $found->first();
         $familyNumber = substr((string) ($seed['articleNumber'] ?? ''), 0, $prefixLength);
-        $candidateParent = [
-            'products' => [[
-                'article_number' => $familyNumber,
-                'articleNumber' => $familyNumber,
-                'name' => (string) ($common['name'] ?? ($seed['name'] ?? '')),
-                'brand' => (string) ($common['brand'] ?? ($seed['brand'] ?? '')),
-                'unit' => (string) ($common['unit'] ?? ($seed['unit'] ?? '')),
-                'type_number' => $familyNumber,
-                'typeNumber' => $familyNumber,
-                'type_name' => (string) ($common['name'] ?? ($seed['name'] ?? '')),
-                'typeName' => (string) ($common['name'] ?? ($seed['name'] ?? '')),
-            ]],
-        ];
-
+        $commonName = (string) ($common['name'] ?? ($seed['name'] ?? ''));
         $result = [
             'source' => $source,
             'requested_articles' => $wanted->all(),
@@ -79,7 +66,19 @@ class KmsCompareFamilyFromScan extends Command
             'missing_articles' => $missing,
             'family_prefix_length' => $prefixLength,
             'family_prefixes' => $familyPrefixes,
-            'candidate_parent_payload' => $candidateParent,
+            'candidate_parent_payload' => [
+                'products' => [[
+                    'article_number' => $familyNumber,
+                    'articleNumber' => $familyNumber,
+                    'name' => $commonName,
+                    'brand' => (string) ($common['brand'] ?? ($seed['brand'] ?? '')),
+                    'unit' => (string) ($common['unit'] ?? ($seed['unit'] ?? '')),
+                    'type_number' => $familyNumber,
+                    'typeNumber' => $familyNumber,
+                    'type_name' => $commonName,
+                    'typeName' => $commonName,
+                ]],
+            ],
             'common_fields' => $common,
             'variant_specific_fields' => $variantSpecific,
             'compared_rows' => $found->map(function ($row) {

@@ -22,10 +22,11 @@ class KmsCompareFamily extends Command
 
         $args = [
             'articles' => $this->argument('articles'),
+            '--prefix-length' => (string) $this->option('prefix-length'),
         ];
 
         if ($this->option('source')) {
-            $args['source'] = $this->option('source');
+            $args['--source'] = $this->option('source');
         }
         if ($this->option('dump-json')) {
             $args['--dump-json'] = true;
@@ -36,7 +37,6 @@ class KmsCompareFamily extends Command
         if ($this->option('debug')) {
             $args['--debug'] = true;
         }
-        $args['--prefix-length'] = (string) $this->option('prefix-length');
 
         return (int) $this->call('kms:compare:family-from-scan', $args);
     }
