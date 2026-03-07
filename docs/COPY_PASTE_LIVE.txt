@@ -1,0 +1,23 @@
+composer dump-autoload
+php artisan optimize:clear
+php artisan list | findstr kms:live:family-createupdate
+
+REM === FIRST DO A SAFE DRY-RUN ===
+php artisan kms:live:family-createupdate 505050117 --write-json --dry-run --debug
+
+REM === THEN THE FIRST REAL LIVE PROBE ===
+php artisan kms:live:family-createupdate 505050117 --write-json --debug
+
+REM === IF 505050117 LOOKS GOOD, DO THE SAME FOR THE OTHER TWO ===
+php artisan kms:live:family-createupdate 505050111 --write-json --dry-run --debug
+php artisan kms:live:family-createupdate 505050111 --write-json --debug
+php artisan kms:live:family-createupdate 505050096 --write-json --dry-run --debug
+php artisan kms:live:family-createupdate 505050096 --write-json --debug
+
+REM === OPTIONAL: ONLY TEST PARENT CREATEUPDATE ===
+php artisan kms:live:family-createupdate 505050117 --parent-only --write-json --debug
+
+REM === OPTIONAL: FORCE SPECIFIC MISSING CHILD/SIBLING ARTICLES ===
+php artisan kms:live:family-createupdate 505050117 --child=505050117005400 --sibling=505050117005440 --write-json --debug
+php artisan kms:live:family-createupdate 505050111 --child=505050111001210 --sibling=505050111001220 --write-json --debug
+php artisan kms:live:family-createupdate 505050096 --child=505050096001660 --sibling=505050096030660 --write-json --debug

@@ -1,0 +1,13 @@
+composer dump-autoload
+php artisan optimize:clear
+php artisan erp:families:combine --dump-json --debug
+php artisan kms:scan:combine --dump-json --dump-csv --debug
+php artisan kms:map:erp-families --family=505050117 --dump-json --debug
+php artisan kms:build:parent-payload 505050117 --dump-json --debug
+php artisan kms:probe:family-bootstrap 505050117 --dump-json --debug
+php artisan kms:map:erp-families --family=505050111 --dump-json --debug
+php artisan kms:build:parent-payload 505050111 --dump-json --debug
+php artisan kms:probe:family-bootstrap 505050111 --dump-json --debug
+php artisan kms:map:erp-families --family=505050096 --dump-json --debug
+php artisan kms:build:parent-payload 505050096 --dump-json --debug
+php artisan kms:probe:family-bootstrap 505050096 --dump-json --debug
