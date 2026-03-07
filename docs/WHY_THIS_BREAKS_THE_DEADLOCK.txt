@@ -1,0 +1,22 @@
+WAAROM DIT WERKT
+----------------
+Tot nu toe liep het project vast op vier dingen:
+1. losse KMS article lookups zijn inconsistent
+2. storage/app versus storage/app/private veroorzaakte false negatives
+3. compare tooling was niet scan-first
+4. er was geen end-to-end family bootstrap flow
+
+Deze patch bundle maakt 1 vaste route:
+- scans combineren
+- families combineren
+- per family mappen
+- parent payload genereren
+- bootstrap probe draaien
+
+Daardoor krijg je niet meer 20 losse vermoedens, maar per family 1 rapport met:
+- ERP row count
+- KMS row count in scan
+- suspected parent mode
+- recommended action
+- candidate parent payload
+- bootstrap result

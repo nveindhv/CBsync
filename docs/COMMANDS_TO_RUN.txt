@@ -1,0 +1,18 @@
+FASE 1 - COMBINE
+php artisan kms:scan:combine --dump-json --dump-csv --debug
+php artisan erp:families:combine --dump-json --debug
+
+FASE 2 - MAP
+php artisan kms:map:erp-families --family=505050117 --dump-json --debug
+php artisan kms:map:erp-families --family=505050111 --dump-json --debug
+php artisan kms:map:erp-families --family=505050096 --dump-json --debug
+
+FASE 3 - PARENT PAYLOAD
+php artisan kms:build:parent-payload 505050117 --dump-json --debug
+php artisan kms:build:parent-payload 505050111 --dump-json --debug
+php artisan kms:build:parent-payload 505050096 --dump-json --debug
+
+FASE 4 - BOOTSTRAP PROBE
+php artisan kms:probe:family-bootstrap 505050117 --dump-json --debug
+php artisan kms:probe:family-bootstrap 505050111 --dump-json --debug
+php artisan kms:probe:family-bootstrap 505050096 --dump-json --debug
