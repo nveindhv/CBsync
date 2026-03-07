@@ -1,0 +1,3 @@
+Voeg deze command toe aan app/Console/Kernel.php in de $commands array:
+
+    \App\Console\Commands\KmsProbeParentMatrix::class,
