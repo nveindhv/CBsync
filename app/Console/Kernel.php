@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\KmsReverseProduct::class,
         \App\Console\Commands\KmsReverseScan::class,
         \App\Console\Commands\KmsRepairProductVisibility::class,
+        \App\Console\Commands\KmsProbeErpWindowSmart::class,
     ];
 
     protected function schedule(Schedule $schedule): void

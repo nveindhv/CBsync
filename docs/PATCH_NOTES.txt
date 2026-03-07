@@ -1,0 +1,55 @@
+CBsync smart ERP->KMS triage patch
+=================================
+
+Included file:
+- app/Console/Commands/KmsProbeErpWindowSmart.php
+
+Add this line to app/Console/Kernel.php inside protected $commands = [ ... ]:
+
+    \App\Console\Commands\KmsProbeErpWindowSmart::class,
+
+Then run:
+
+    composer dump-autoload
+    php artisan optimize:clear
+    php artisan list | findstr kms:probe:erp-window-smart
+
+Recommended commands
+--------------------
+
+1) Broad 88k-100k smart scan
+
+    php artisan kms:probe:erp-window-smart --offset-from=88000 --offset-to=100000 --page-size=50 --insecure --timeout=120 --connect-timeout=20 --retries=1 --save-json --debug
+
+2) WEB-only smart scan
+
+    php artisan kms:probe:erp-window-smart --offset-from=88000 --offset-to=100000 --page-size=50 --only-classification=WEB --insecure --timeout=120 --connect-timeout=20 --retries=1 --save-json --debug
+
+Outputs
+-------
+
+Files are written to storage/app/kms_probe_window_smart/
+
+- *_all.csv              all triaged rows
+- *_missing.csv          rows not found in KMS
+- *_abnormal.csv         missing rows that look like base/family candidates
+- *_family_summary.csv   family clusters and counts
+- optional *.json        when --save-json is passed
+
+Interpretation
+--------------
+
+path=update_existing
+  Existing in KMS, use normal update logic.
+
+path=missing_normal_variant
+  Missing in KMS but looks like a regular variant row.
+
+path=abnormal_base_candidate
+  Missing in KMS and has abnormal/base-like signals (letters, many zeroes,
+  EEN, empty externalProductCode, repeating descriptions, etc.).
+
+This command is meant to answer exactly:
+- what can already be updated?
+- what is missing in KMS?
+- which missing rows look abnormal enough to inspect as possible base/family records first?

@@ -9,20 +9,19 @@ use Illuminate\Support\Arr;
 class KmsProbeUpsertFlow extends Command
 {
     protected $signature = 'kms:probe:upsert-flow
-        {article : Full KMS articleNumber}
-        {--ean= : EAN}
-        {--unit= : Unit}
-        {--brand= : Brand}
-        {--color= : Color}
-        {--size= : Size}
+        {article : Full ERP/KMS articleNumber (variant)}
+        {--ean= : EAN for the variant}
+        {--unit= : Unit, e.g. STK/PAAR}
+        {--name= : Product name / description}
+        {--brand= : Brand, e.g. TRICORP}
+        {--color= : Color, e.g. navy}
+        {--size= : Size, e.g. 66}
         {--price= : Sales price}
         {--purchase-price= : Purchase price}
         {--supplier-name= : Supplier name}
-        {--name= : Product name (needed for CREATE path)}
-        {--type-number= : Force type_number; default first 11 chars of article}
-        {--type-name= : Force type_name; default FAMILY <type_number>}
-        {--family-len=11 : Prefix length for derived type_number}
-        {--sleep=250 : Milliseconds between requests}
+        {--type-number= : Force type_number/typeNumber}
+        {--type-name= : Force type_name/typeName}
+        {--family-len=9 : Length used when deriving the family/type from articleNumber}
         {--debug : Dump payloads and raw responses}';
 
     protected $description = 'Probe practical ERP -> KMS upsert flow: existing => update without type, missing => create with type + name + context.';
@@ -30,40 +29,48 @@ class KmsProbeUpsertFlow extends Command
     public function handle(): int
     {
         $article = (string) $this->argument('article');
-        $ean = $this->opt('ean');
-        $unit = $this->opt('unit');
-        $brand = $this->opt('brand');
-        $color = $this->opt('color');
-        $size = $this->opt('size');
-        $name = $this->opt('name');
-        $supplierName = $this->opt('supplier-name');
-        $price = $this->numOpt('price');
-        $purchasePrice = $this->numOpt('purchase-price');
-        $sleepMs = (int) ($this->option('sleep') ?? 250);
+        $ean = $this->optString('ean');
+        $unit = $this->optString('unit');
+        $name = $this->optString('name');
+        $brand = $this->optString('brand');
+        $color = $this->optString('color');
+        $size = $this->optString('size');
+        $supplierName = $this->optString('supplier-name');
+        $typeNumber = $this->optString('type-number');
+        $typeName = $this->optString('type-name');
+        $familyLen = max(1, (int) ($this->option('family-len') ?? 9));
         $debug = (bool) $this->option('debug');
 
-        $familyLen = max(1, (int) ($this->option('family-len') ?? 11));
-        $typeNumber = $this->opt('type-number') ?: (strlen($article) >= $familyLen ? substr($article, 0, $familyLen) : $article);
-        $typeName = $this->opt('type-name') ?: ('FAMILY ' . $typeNumber);
+        $price = $this->optNumeric('price');
+        $purchasePrice = $this->optNumeric('purchase-price');
+
+        if (!$typeNumber && strlen($article) >= $familyLen) {
+            $typeNumber = substr($article, 0, $familyLen);
+        }
+        if (!$typeName && $typeNumber) {
+            $typeName = 'FAMILY ' . $typeNumber;
+        }
 
         /** @var KmsClient $kms */
         $kms = app(KmsClient::class);
 
-        $this->line('=== KMS UPSERT FLOW PROBE (v1.0) ===');
+        $this->line('=== KMS UPSERT FLOW PROBE (v1.1) ===');
         $this->line('Article     : ' . $article);
         if ($ean !== null) {
             $this->line('EAN         : ' . $ean);
         }
-        $this->line('type_number : ' . $typeNumber);
-        $this->line('type_name   : ' . $typeName);
+        $this->line('type_number : ' . ($typeNumber ?? '[none]'));
+        $this->line('type_name   : ' . ($typeName ?? '[none]'));
         $this->newLine();
 
         $existing = $this->fetchOne($kms, $article, $ean, $debug);
 
         if ($existing) {
             $this->info('Existing product found in KMS -> UPDATE path');
-
-            $payload = $this->payload($article, $ean, [
+            $payload = ['products' => [[
+                'article_number' => $article,
+                'articleNumber' => $article,
+                'ean' => $ean,
                 'unit' => $unit,
                 'brand' => $brand,
                 'color' => $color,
@@ -72,19 +79,45 @@ class KmsProbeUpsertFlow extends Command
                 'purchase_price' => $purchasePrice,
                 'supplier_name' => $supplierName,
                 'name' => $name,
-            ]);
+            ]]];
 
-            return $this->runStep($kms, 'update_without_type', $payload, $article, $ean, $sleepMs, $debug);
+            $payload['products'][0] = array_filter(
+                $payload['products'][0],
+                fn ($v) => $v !== null && $v !== ''
+            );
+
+            $this->line('--- Step: update_without_type ---');
+            if ($debug) {
+                $this->line('PAYLOAD:');
+                $this->line(json_encode($payload, JSON_UNESCAPED_SLASHES));
+            }
+            $raw = $kms->post('kms/product/createUpdate', $payload);
+            if ($debug) {
+                $this->line('RAW RESPONSE:');
+                $this->line(json_encode($raw, JSON_UNESCAPED_SLASHES));
+            }
+            usleep(350000);
+            $after = $this->fetchOne($kms, $article, $ean, $debug);
+            if ($after) {
+                $this->info('VISIBLE ✔ after update_without_type');
+                $this->line('Snapshot: ' . json_encode($after, JSON_UNESCAPED_SLASHES));
+                return self::SUCCESS;
+            }
+
+            $this->error('Article unexpectedly not visible after update_without_type.');
+            return self::FAILURE;
         }
 
-        $this->warn('Product not currently visible in KMS -> CREATE path');
-
-        $payload = $this->payload($article, $ean, [
+        $this->warn('Missing product in KMS -> CREATE path');
+        $payload = ['products' => [[
+            'article_number' => $article,
+            'articleNumber' => $article,
+            'ean' => $ean,
             'unit' => $unit,
+            'name' => $name,
             'brand' => $brand,
             'color' => $color,
             'size' => $size,
-            'name' => $name,
             'price' => $price,
             'purchase_price' => $purchasePrice,
             'supplier_name' => $supplierName,
@@ -92,93 +125,70 @@ class KmsProbeUpsertFlow extends Command
             'typeNumber' => $typeNumber,
             'type_name' => $typeName,
             'typeName' => $typeName,
-        ]);
+        ]]];
+        $payload['products'][0] = array_filter(
+            $payload['products'][0],
+            fn ($v) => $v !== null && $v !== ''
+        );
 
-        return $this->runStep($kms, 'create_with_type_and_name', $payload, $article, $ean, $sleepMs, $debug);
-    }
-
-    private function runStep(KmsClient $kms, string $stepName, array $payload, string $article, ?string $ean, int $sleepMs, bool $debug): int
-    {
-        $this->line('--- Step: ' . $stepName . ' ---');
+        $this->line('--- Step: create_with_type_and_context ---');
         if ($debug) {
             $this->line('PAYLOAD:');
             $this->line(json_encode($payload, JSON_UNESCAPED_SLASHES));
         }
-
         $raw = $kms->post('kms/product/createUpdate', $payload);
         if ($debug) {
             $this->line('RAW RESPONSE:');
             $this->line(json_encode($raw, JSON_UNESCAPED_SLASHES));
         }
-
-        usleep($sleepMs * 1000);
-
-        $snapshot = $this->fetchOne($kms, $article, $ean, $debug);
-        if ($snapshot) {
-            $this->info('VISIBLE ✔ after ' . $stepName);
-            $this->line('Snapshot: ' . json_encode($snapshot, JSON_UNESCAPED_SLASHES));
+        usleep(350000);
+        $after = $this->fetchOne($kms, $article, $ean, $debug);
+        if ($after) {
+            $this->info('VISIBLE ✔ after create_with_type_and_context');
+            $this->line('Snapshot: ' . json_encode($after, JSON_UNESCAPED_SLASHES));
             return self::SUCCESS;
         }
 
-        $this->error('Still not visible after ' . $stepName);
+        $this->error('Still not visible after create_with_type_and_context');
+        $this->comment('Likely causes: wrong family/type grouping or still-missing create context.');
         return self::FAILURE;
-    }
-
-    private function payload(string $article, ?string $ean, array $fields): array
-    {
-        $product = [
-            'article_number' => $article,
-            'articleNumber' => $article,
-        ];
-
-        if ($ean !== null && $ean !== '') {
-            $product['ean'] = $ean;
-        }
-
-        foreach ($fields as $key => $value) {
-            if ($value === null || $value === '') {
-                continue;
-            }
-            $product[$key] = $value;
-        }
-
-        return ['products' => [$product]];
     }
 
     private function fetchOne(KmsClient $kms, string $article, ?string $ean, bool $debug = false): ?array
     {
         $res = $kms->post('kms/product/getProducts', [
             'offset' => 0,
-            'limit' => 5,
+            'limit' => 50,
             'articleNumber' => $article,
         ]);
-
-        $items = $this->normalize($res);
+        $items = $this->normalizeProductsResponse($res);
         if ($debug) {
             $this->line('fetchOne article lookup count=' . count($items));
             $this->line('fetchOne article raw=' . json_encode($res, JSON_UNESCAPED_SLASHES));
         }
-
-        foreach ($items as $item) {
-            if ((string) Arr::get($item, 'articleNumber') === $article) {
-                return $item;
+        foreach ($items as $p) {
+            if ((string) Arr::get($p, 'articleNumber') === $article) {
+                return $p;
             }
         }
 
-        if ($ean !== null && $ean !== '') {
+        if ($ean) {
             $res2 = $kms->post('kms/product/getProducts', [
                 'offset' => 0,
-                'limit' => 5,
+                'limit' => 50,
                 'ean' => $ean,
             ]);
-            $items2 = $this->normalize($res2);
+            $items2 = $this->normalizeProductsResponse($res2);
             if ($debug) {
                 $this->line('fetchOne ean lookup count=' . count($items2));
                 $this->line('fetchOne ean raw=' . json_encode($res2, JSON_UNESCAPED_SLASHES));
             }
-            foreach ($items2 as $item) {
-                if ((string) Arr::get($item, 'articleNumber') === $article || (string) Arr::get($item, 'ean') === $ean) {
-                    return $item;
+            foreach ($items2 as $p) {
+                if ((string) Arr::get($p, 'articleNumber') === $article) {
+                    return $p;
+                }
+                if ((string) Arr::get($p, 'ean') === $ean) {
+                    return $p;
                 }
             }
         }
@@ -186,35 +196,33 @@ class KmsProbeUpsertFlow extends Command
         return null;
     }
 
-    private function normalize($res): array
+    private function normalizeProductsResponse($res): array
     {
-        if (!is_array($res) || $res === []) {
+        if (!is_array($res) || empty($res)) {
             return [];
         }
-
         $keys = array_keys($res);
-        $isList = $keys === range(0, count($keys) - 1);
-        $items = $isList ? $res : array_values($res);
-
-        return array_values(array_filter($items, static fn ($row) => is_array($row)));
+        $isNumericList = ($keys === range(0, count($keys) - 1));
+        $items = $isNumericList ? $res : array_values($res);
+        return array_values(array_filter($items, fn ($x) => is_array($x)));
     }
 
-    private function opt(string $name): ?string
+    private function optString(string $key): ?string
     {
-        $value = $this->option($name);
-        if ($value === null) {
+        $v = $this->option($key);
+        if ($v === null) {
             return null;
         }
-        $value = trim((string) $value);
-        return $value === '' ? null : $value;
+        $v = trim((string) $v);
+        return $v === '' ? null : $v;
     }
 
-    private function numOpt(string $name): float|int|null
+    private function optNumeric(string $key): ?float
     {
-        $value = $this->opt($name);
-        if ($value === null) {
+        $v = $this->option($key);
+        if ($v === null || $v === '') {
             return null;
         }
-        return str_contains($value, '.') ? (float) $value : (int) $value;
+        return is_numeric($v) ? (float) $v : null;
     }
 }
