@@ -286,32 +286,131 @@ class KmsProbeExistingFamilySibling extends Command
 
     private function lookupArticle($kms, string $article, bool $debug = false): array
     {
-        $rows = $kms->getProducts([
+        $rows = $this->normalizeRows($kms->post('kms/product/getProducts', [
             'offset' => 0,
             'limit' => 10,
             'articleNumber' => $article,
-        ]);
+        ]));
 
         if ($debug) {
             $this->line('lookup article=' . $article . ' count=' . count($rows));
         }
 
-        return is_array($rows) ? $rows : [];
+        return $rows;
     }
 
     private function lookupEan($kms, string $ean, bool $debug = false): array
     {
-        $rows = $kms->getProducts([
+        $rows = $this->normalizeRows($kms->post('kms/product/getProducts', [
             'offset' => 0,
             'limit' => 10,
             'ean' => $ean,
-        ]);
+        ]));
 
         if ($debug) {
             $this->line('lookup ean=' . $ean . ' count=' . count($rows));
         }
 
-        return is_array($rows) ? $rows : [];
+        return $rows;
+    }
+
+    private function normalizeRows($response): array
+    {
+        if (is_string($response)) {
+            $decoded = json_decode($response, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $response = $decoded;
+            }
+        } elseif (is_object($response)) {
+            $response = json_decode(json_encode($response), true) ?: [];
+        }
+
+        if (! is_array($response)) {
+            return [];
+        }
+
+        $candidateSets = [];
+
+        if (isset($response['products'])) {
+            $candidateSets[] = $response['products'];
+        }
+        if (isset($response['rows'])) {
+            $candidateSets[] = $response['rows'];
+        }
+        if (isset($response['data'])) {
+            $candidateSets[] = $response['data'];
+            if (is_array($response['data'])) {
+                if (isset($response['data']['products'])) {
+                    $candidateSets[] = $response['data']['products'];
+                }
+                if (isset($response['data']['rows'])) {
+                    $candidateSets[] = $response['data']['rows'];
+                }
+            }
+        }
+        if (isset($response['result'])) {
+            $candidateSets[] = $response['result'];
+            if (is_array($response['result'])) {
+                if (isset($response['result']['products'])) {
+                    $candidateSets[] = $response['result']['products'];
+                }
+                if (isset($response['result']['rows'])) {
+                    $candidateSets[] = $response['result']['rows'];
+                }
+            }
+        }
+        $candidateSets[] = $response;
+
+        foreach ($candidateSets as $candidate) {
+            if (is_object($candidate)) {
+                $candidate = json_decode(json_encode($candidate), true) ?: [];
+            }
+            if (! is_array($candidate)) {
+                continue;
+            }
+
+            if (array_is_list($candidate)) {
+                $rows = [];
+                foreach ($candidate as $row) {
+                    if (is_object($row)) {
+                        $row = json_decode(json_encode($row), true) ?: null;
+                    }
+                    if (is_array($row)) {
+                        $rows[] = $row;
+                    }
+                }
+                if ($rows !== []) {
+                    return $rows;
+                }
+            }
+
+            foreach (['products', 'rows', 'data', 'result'] as $nestedKey) {
+                if (! isset($candidate[$nestedKey])) {
+                    continue;
+                }
+                $nested = $candidate[$nestedKey];
+                if (is_object($nested)) {
+                    $nested = json_decode(json_encode($nested), true) ?: [];
+                }
+                if (! is_array($nested) || ! array_is_list($nested)) {
+                    continue;
+                }
+                $rows = [];
+                foreach ($nested as $row) {
+                    if (is_object($row)) {
+                        $row = json_decode(json_encode($row), true) ?: null;
+                    }
+                    if (is_array($row)) {
+                        $rows[] = $row;
+                    }
+                }
+                if ($rows !== []) {
+                    return $rows;
+                }
+            }
+        }
+
+        return [];
     }
 
     private function postCreateUpdate($kms, array $payload): array
