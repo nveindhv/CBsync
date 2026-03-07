@@ -1,68 +1,75 @@
-CBsync v1.17 - bewezen upsert-flow probe
-=======================================
+CBsync - kleine vervolgtest op basis van bestaande kms_probe_window scan
+====================================================================
 
-INHOUD
-- app/Console/Commands/KmsReverseCreatePath.php
-- app/Console/Commands/KmsProbeUpsertFlow.php
-- docs/KMS_UPSERT_FLOW_NOTES.md
-- README_STEPS.txt
+Doel
+----
+Niet opnieuw 10.000 ERP-regels scannen.
+Wel: uit de AL bestaande window-scan een kleine, representatieve create/update subset halen,
+zodat je gericht createUpdate gedrag op KMS kunt testen.
 
-DOEL
-Deze patch voegt 2 commands toe:
-1. kms:reverse:create-path
-   Test welke createUpdate payload een MISSEND artikel zichtbaar maakt in KMS.
-2. kms:probe:upsert-flow
-   Test de praktische ERP -> KMS flow:
-   - bestaat artikel al? => update zonder type
-   - bestaat artikel niet? => create met type + name + context
+Bestand in deze zip
+-------------------
+- app/Console/Commands/KmsProbeWindowSamples.php
 
-STAPPEN
-1) Pak de zip uit in je projectroot.
+Wat deze command doet
+---------------------
+- pakt standaard de nieuwste CSV uit storage/app/kms_probe_window/window_*.csv
+- filtert op create / update / classification
+- maakt een kleine representatieve sample (standaard max 3 per merk)
+- schrijft nieuwe bestanden weg:
+  - storage/app/kms_probe_window/sample_*.csv
+  - storage/app/kms_probe_window/sample_*.json
+  - storage/app/kms_probe_window/sample_*_commands.txt  (als je --write-commands gebruikt)
+
+Installatie
+-----------
+1) Pak deze zip uit in je projectroot.
 2) Run:
    composer dump-autoload
    php artisan optimize:clear
-3) Check of commands bestaan:
-   php artisan list | findstr kms:reverse:create-path
-   php artisan list | findstr kms:probe:upsert-flow
+3) Check of de command zichtbaar is:
+   php artisan list | findstr kms:probe:window-samples
 
-BEWEZEN TESTS
-A) Missing artikel -> create path
-php artisan kms:reverse:create-path 100010001099400 --ean=8054085183839 --unit=PAAR --brand=SIXTON --color=taupe --size=40 --price=70.95 --purchase-price=0.11 --supplier-name=SIXTON --name="SIXTON NISIDA 10037-13, composiet neus + anti-perforatiezool (S3)" --debug
+Aanbevolen gebruik
+------------------
+A. Maak eerst een kleine CREATE-sample uit je bestaande grote scan:
+   php artisan kms:probe:window-samples --mode=create --limit=20 --per-brand=3 --write-commands --debug
 
-Verwachte interpretatie:
-- minimal_price_only => niet zichtbaar
-- context_no_type => niet zichtbaar
-- context_with_name_no_type => niet zichtbaar
-- context_with_type => niet zichtbaar
-- context_with_type_and_name => zichtbaar
+B. Alleen WEB create-kandidaten uit diezelfde scan:
+   php artisan kms:probe:window-samples --mode=create --only-classification=WEB --limit=20 --per-brand=3 --write-commands --debug
 
-B) Praktische upsert flow op missing artikel
-php artisan kms:probe:upsert-flow 100010001099400 --ean=8054085183839 --unit=PAAR --brand=SIXTON --color=taupe --size=40 --price=70.95 --purchase-price=0.11 --supplier-name=SIXTON --name="SIXTON NISIDA 10037-13, composiet neus + anti-perforatiezool (S3)" --debug
+C. UPDATE-kandidaten:
+   php artisan kms:probe:window-samples --mode=update --limit=20 --per-brand=3 --write-commands --debug
 
-Verwacht:
-- als artikel nog mist => CREATE path
-- als artikel al zichtbaar is => UPDATE path
+D. Op expliciete bron-CSV werken:
+   php artisan kms:probe:window-samples --csv=storage/app/kms_probe_window/window_88000_98000_20260306_080630.csv --mode=create --limit=20 --write-commands --debug
 
-C) Praktische upsert flow op bestaand artikel
-php artisan kms:probe:upsert-flow 518060005020580 --ean=5036108217649 --unit=STK --brand=PORTWEST --color="royal blue" --size=XXL --price=89.95 --purchase-price=0.11 --supplier-name=PORTWEST --debug
+Wat je daarna doet
+------------------
+Na een run krijg je een TXT-bestand met kant-en-klare commands.
+Open die met bijvoorbeeld:
+   type storage\app\kms_probe_window\sample_create_YYYYMMDD_HHMMSS_commands.txt
 
-Verwacht:
-- Existing product found in KMS -> UPDATE path
-- payload zonder type_number/type_name
-- artikel blijft zichtbaar
+Voer daarna de eerste 3-10 commands uit.
+- create-sample -> gebruikt kms:reverse:create-path
+- update-sample -> gebruikt kms:probe:upsert-flow
 
-HUIDIGE WERKHYPOTHESE
-- UPDATE bestaand KMS artikel:
-  stuur GEEN type_number/type_name mee
-- CREATE nieuw KMS artikel:
-  stuur WEL mee:
-  type_number/typeNumber + type_name/typeName + name + context
-- family/type afleiding:
-  voorlopig eerste 11 chars van articleNumber
+Praktische volgorde
+-------------------
+1) Start met create zonder WEB-filter:
+   php artisan kms:probe:window-samples --mode=create --limit=10 --per-brand=2 --write-commands --debug
+2) Bekijk het command-bestand.
+3) Run 3 tot 5 create-path tests.
+4) Kijk welke payloads werken / niet werken.
+5) Pas daarna pas WEB-filter toe als je classification mapping zekerder wilt testen.
 
-WAT HIERNA BOUWEN
-Volgende logische stap is een echte service/command voor productie:
-- lookup articleNumber in KMS
-- hit => update payload zonder type
-- miss => create payload met type + name + context
-- duidelijke logging per artikel
+Waarom dit handiger is
+----------------------
+- je gebruikt de al opgeslagen window-scan
+- geen zware ERP-call opnieuw nodig
+- je krijgt meteen een kleine, gemengde set testgevallen
+- je kunt mislukte create-kandidaten veel sneller analyseren
+
+Opmerking
+---------
+Deze command verandert niks in ERP of KMS. Hij leest alleen CSV en maakt samples + testcommands.
