@@ -4,109 +4,72 @@ namespace App\Console\Commands;
 
 use App\Services\Kms\KmsClient;
 use Illuminate\Console\Command;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 
 class KmsLiveFamilyCreateUpdate extends Command
 {
     protected $signature = 'kms:live:family-createupdate
-        {family : ERP/KMS family prefix (existing workflow uses 9 or 11 chars)}
+        {family : ERP/KMS family prefix}
         {--child= : Explicit full child article_number to probe}
         {--sibling= : Explicit full sibling article_number to probe}
         {--parent-only : Only test the parent createUpdate step(s)}
-        {--write-json : Write detailed matrix report to storage/app/private/kms_scan/live_family_probes}
+        {--write-json : Write detailed matrix report}
         {--dry-run : Build and verify probe matrix without posting createUpdate}
-        {--debug : Verbose output}
-        {--force-all-scenarios : Do not stop after first success}';
+        {--debug : Verbose output}';
 
     protected $description = 'Prepare and live-probe multiple parent/base/variant createUpdate strategies for one family.';
 
-    public function handle(): int
+    public function handle(KmsClient $kms): int
     {
         $family = trim((string) $this->argument('family'));
         $dryRun = (bool) $this->option('dry-run');
         $debug = (bool) $this->option('debug');
-        $forceAll = (bool) $this->option('force-all-scenarios');
         $parentOnly = (bool) $this->option('parent-only');
-        $writeJson = (bool) $this->option('write-json');
-        $childOpt = trim((string) ($this->option('child') ?? ''));
-        $siblingOpt = trim((string) ($this->option('sibling') ?? ''));
 
-        $seed = $this->loadSeedData($family, $childOpt, $siblingOpt, $debug);
+        $seed = $this->loadSeedData($family);
         if (! $seed['ok']) {
-            $this->warn($seed['message']);
-            $this->line('Attempting to generate seed payloads via: php artisan kms:prep:family-live-probe ' . $family . ' --write-json ...');
-
-            try {
-                Artisan::call('kms:prep:family-live-probe', array_filter([
-                    'family' => $family,
-                    '--child' => $childOpt !== '' ? $childOpt : null,
-                    '--sibling' => $siblingOpt !== '' ? $siblingOpt : null,
-                    '--write-json' => true,
-                    '--debug' => $debug ? true : null,
-                ], static fn ($v) => $v !== null));
-
-                if ($debug) {
-                    $out = trim((string) Artisan::output());
-                    if ($out !== '') {
-                        $this->line($out);
-                    }
-                }
-            } catch (\Throwable $e) {
-                if ($debug) {
-                    $this->warn('Seed generation failed: ' . get_class($e) . ' ' . $e->getMessage());
-                }
-            }
-
-            $seed = $this->loadSeedData($family, $childOpt, $siblingOpt, $debug);
-            if (! $seed['ok']) {
-                $this->error($seed['message']);
-                return self::FAILURE;
-            }
+            $this->error($seed['message']);
+            return self::FAILURE;
         }
 
         $parentPayload = $seed['parent_payload'];
         $childPayload = $seed['child_payload'];
         $siblingPayload = $seed['sibling_payload'];
-        $childArticle = (string) Arr::get($childPayload, 'products.0.article_number', Arr::get($childPayload, 'products.0.articleNumber', ''));
-        $childEan = (string) Arr::get($childPayload, 'products.0.ean', '');
-        $siblingArticle = (string) Arr::get($siblingPayload, 'products.0.article_number', Arr::get($siblingPayload, 'products.0.articleNumber', ''));
-        $siblingEan = (string) Arr::get($siblingPayload, 'products.0.ean', '');
-        $parentArticle = (string) Arr::get($parentPayload, 'products.0.article_number', Arr::get($parentPayload, 'products.0.articleNumber', $family));
-        $parentEan = (string) Arr::get($parentPayload, 'products.0.ean', '');
+        $childArticle = (string) data_get($childPayload, 'products.0.articleNumber', data_get($childPayload, 'products.0.article_number', ''));
+        $childEan = (string) data_get($childPayload, 'products.0.ean', '');
+        $siblingArticle = (string) data_get($siblingPayload, 'products.0.articleNumber', data_get($siblingPayload, 'products.0.article_number', ''));
+        $siblingEan = (string) data_get($siblingPayload, 'products.0.ean', '');
 
-        /** @var KmsClient $kms */
-        $kms = app(KmsClient::class);
-
+        $this->line('Loaded seed files:');
+        foreach ($seed['files'] as $file) {
+            $this->line(' - ' . $file);
+        }
         $this->line('=== KMS FAMILY LIVE CREATEUPDATE MATRIX ===');
         $this->line('Family      : ' . $family);
         $this->line('Mode        : ' . ($dryRun ? 'DRY RUN' : 'LIVE'));
         $this->line('Parent-only : ' . ($parentOnly ? 'YES' : 'NO'));
         $this->line('Child       : ' . $childArticle);
         $this->line('Sibling     : ' . $siblingArticle);
+        $this->newLine();
 
         $scenarios = [
             [
-                'key' => 'parent_only',
-                'label' => 'Parent only',
+                'name' => 'Parent only',
                 'steps' => [
-                    ['name' => 'parent', 'payload' => $parentPayload, 'article' => $parentArticle, 'ean' => $parentEan],
+                    ['name' => 'parent', 'payload' => $parentPayload, 'article' => $family, 'ean' => ''],
                 ],
             ],
             [
-                'key' => 'parent_child',
-                'label' => 'Parent + child',
+                'name' => 'Parent + child',
                 'steps' => [
-                    ['name' => 'parent', 'payload' => $parentPayload, 'article' => $parentArticle, 'ean' => $parentEan],
+                    ['name' => 'parent', 'payload' => $parentPayload, 'article' => $family, 'ean' => ''],
                     ['name' => 'child', 'payload' => $childPayload, 'article' => $childArticle, 'ean' => $childEan],
                 ],
             ],
             [
-                'key' => 'parent_child_sibling',
-                'label' => 'Parent + child + sibling',
+                'name' => 'Parent + child + sibling',
                 'steps' => [
-                    ['name' => 'parent', 'payload' => $parentPayload, 'article' => $parentArticle, 'ean' => $parentEan],
+                    ['name' => 'parent', 'payload' => $parentPayload, 'article' => $family, 'ean' => ''],
                     ['name' => 'child', 'payload' => $childPayload, 'article' => $childArticle, 'ean' => $childEan],
                     ['name' => 'sibling', 'payload' => $siblingPayload, 'article' => $siblingArticle, 'ean' => $siblingEan],
                 ],
@@ -114,170 +77,216 @@ class KmsLiveFamilyCreateUpdate extends Command
         ];
 
         if ($parentOnly) {
-            $scenarios = $this->filterParentOnlyScenarios($scenarios);
+            foreach ($scenarios as &$scenario) {
+                $scenario['steps'] = [
+                    ['name' => 'parent', 'payload' => $parentPayload, 'article' => $family, 'ean' => ''],
+                ];
+            }
+            unset($scenario);
         }
 
         $report = [
             'family' => $family,
             'mode' => $dryRun ? 'dry-run' : 'live',
             'parent_only' => $parentOnly,
-            'seed_files' => $seed['seed_files'],
             'scenarios' => [],
-            'summary' => [
-                'any_success' => false,
-                'recommended_next_step' => null,
-            ],
         ];
 
-        foreach ($scenarios as $scenario) {
-            $scenarioReport = [
-                'key' => $scenario['key'],
-                'label' => $scenario['label'],
-                'success' => false,
-                'success_components' => [],
-                'steps' => [],
-            ];
+        $anySuccess = false;
 
-            $this->newLine();
-            $this->line('---------- ' . $scenario['label'] . ' ----------');
+        foreach ($scenarios as $scenario) {
+            $this->sectionLine($scenario['name']);
+            $scenarioReport = ['name' => $scenario['name'], 'steps' => []];
 
             foreach ($scenario['steps'] as $step) {
-                $correlationId = (string) Str::uuid();
-                $before = $this->fetchOne($kms, $step['article'], $step['ean'], $debug, $correlationId . '-before');
-                $posted = false;
+                $before = $this->fetchOne($kms, $step['article'], $step['ean'], $debug);
+                if ($debug) {
+                    $this->line('lookup article=' . $step['article'] . ' count=' . $before['count_article']);
+                    if ($step['ean'] !== '') {
+                        $this->line('lookup ean=' . $step['ean'] . ' count=' . $before['count_ean']);
+                    }
+                } else {
+                    $this->line('lookup article=' . $step['article'] . ' count=' . $before['count_article']);
+                    if ($step['ean'] !== '') {
+                        $this->line('lookup ean=' . $step['ean'] . ' count=' . $before['count_ean']);
+                    }
+                }
+
+                $response = null;
                 $error = null;
+                $correlationId = (string) Str::uuid();
 
                 if (! $dryRun) {
                     try {
-                        $kms->post('kms/product/createUpdate', $step['payload'], $correlationId);
-                        $posted = true;
+                        $response = $kms->post('kms/product/createUpdate', $step['payload'], $correlationId);
                     } catch (\Throwable $e) {
                         $error = $e->getMessage();
                     }
                 }
 
-                $after = $this->fetchOne($kms, $step['article'], $step['ean'], $debug, $correlationId . '-after');
-                $visibleAfter = $after !== null;
-
-                if ($visibleAfter) {
-                    $scenarioReport['success_components'][] = $step['name'];
+                $after = $this->fetchOne($kms, $step['article'], $step['ean'], $debug);
+                $this->line('lookup article=' . $step['article'] . ' count=' . $after['count_article']);
+                if ($step['ean'] !== '') {
+                    $this->line('lookup ean=' . $step['ean'] . ' count=' . $after['count_ean']);
                 }
 
-                $scenarioReport['steps'][] = [
+                $createdNow = ($before['count_article'] === 0 && $after['count_article'] > 0)
+                    || ($step['ean'] !== '' && $before['count_ean'] === 0 && $after['count_ean'] > 0);
+
+                $stepReport = [
                     'name' => $step['name'],
                     'article' => $step['article'],
-                    'ean' => $step['ean'] !== '' ? $step['ean'] : null,
-                    'before' => [
-                        'visible' => $before !== null,
-                        'snapshot' => $before,
-                    ],
-                    'posted' => $posted,
+                    'ean' => $step['ean'],
+                    'correlation_id' => $correlationId,
+                    'before' => $before,
+                    'after' => $after,
+                    'create_update_response' => $response,
                     'error' => $error,
-                    'after' => [
-                        'visible' => $visibleAfter,
-                        'snapshot' => $after,
-                    ],
-                    'payload' => $debug ? $step['payload'] : null,
+                    'created_now' => $createdNow,
                 ];
-            }
-
-            $scenarioReport['success'] = ! empty($scenarioReport['success_components']);
-            $report['scenarios'][] = $scenarioReport;
-
-            if ($scenarioReport['success']) {
-                $report['summary']['any_success'] = true;
-                if (! $forceAll) {
-                    break;
+                $scenarioReport['steps'][] = $stepReport;
+                if ($createdNow) {
+                    $anySuccess = true;
                 }
             }
+
+            $report['scenarios'][] = $scenarioReport;
+            $this->newLine();
         }
 
-        $report['summary']['recommended_next_step'] = $report['summary']['any_success']
-            ? 'Gebruik het eerste succesvolle scenario als basis voor definitieve family bootstrap.'
-            : 'Nog geen zichtbare creatie: diff succesvolle historische create probe tegen deze matrix, vooral op parent/basis article_number en type_number lengte.';
+        $report['summary'] = [
+            'any_success' => $anySuccess,
+            'recommended_next_step' => $anySuccess
+                ? 'Gebruik het eerste scenario waar before=0 en after>0 als bewijs van nieuwe zichtbaarheid.'
+                : 'Nog geen zichtbare creatie: diff succesvolle historische create probe tegen deze matrix, vooral op parent/basis article_number en type_number lengte.',
+        ];
 
-        if ($writeJson) {
-            $outDir = storage_path('app/private/kms_scan/live_family_probes');
-            if (! is_dir($outDir)) {
-                mkdir($outDir, 0777, true);
-            }
-            $ts = now()->format('Ymd_His');
-            $path = $outDir . DIRECTORY_SEPARATOR . 'family_create_matrix_' . $family . '_' . $ts . '.json';
+        $path = $this->reportPath('family_create_matrix_' . $family . '_' . now()->format('Ymd_His') . '.json');
+        if ((bool) $this->option('write-json')) {
             file_put_contents($path, json_encode($report, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
-            $this->line('REPORT JSON : ' . $path);
         }
 
+        $this->line('REPORT JSON : ' . $path);
         $this->newLine();
         $this->line(json_encode($report['summary'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
         return self::SUCCESS;
     }
 
-    private function loadSeedData(string $family, string $childOpt = '', string $siblingOpt = '', bool $debug = false): array
+    private function fetchOne(KmsClient $kms, string $article, string $ean, bool $debug): array
+    {
+        $countArticle = 0;
+        $countEan = 0;
+        $articleRow = null;
+        $eanRow = null;
+        $errorArticle = null;
+        $errorEan = null;
+
+        if ($article !== '') {
+            try {
+                $articleResp = $kms->post('kms/product/getProducts', ['articleNumber' => $article]);
+                $articleRows = $this->extractRows($articleResp);
+                $countArticle = count($articleRows);
+                $articleRow = $this->compactRow($articleRows[0] ?? null);
+            } catch (\Throwable $e) {
+                $errorArticle = $e->getMessage();
+                if ($debug) {
+                    $this->warn('lookup failed for article=' . $article . ' : ' . $e->getMessage());
+                }
+            }
+        }
+
+        if ($ean !== '') {
+            try {
+                $eanResp = $kms->post('kms/product/getProducts', ['ean' => $ean]);
+                $eanRows = $this->extractRows($eanResp);
+                $countEan = count($eanRows);
+                $eanRow = $this->compactRow($eanRows[0] ?? null);
+            } catch (\Throwable $e) {
+                $errorEan = $e->getMessage();
+                if ($debug) {
+                    $this->warn('lookup failed for ean=' . $ean . ' : ' . $e->getMessage());
+                }
+            }
+        }
+
+        return [
+            'count_article' => $countArticle,
+            'count_ean' => $countEan,
+            'article_row' => $articleRow,
+            'ean_row' => $eanRow,
+            'error_article' => $errorArticle,
+            'error_ean' => $errorEan,
+        ];
+    }
+
+    private function extractRows($resp): array
+    {
+        if (! is_array($resp)) {
+            return [];
+        }
+        if (isset($resp['products']) && is_array($resp['products'])) {
+            return array_values(array_filter($resp['products'], 'is_array'));
+        }
+        if (isset($resp[0]) && is_array($resp[0])) {
+            return array_values(array_filter($resp, 'is_array'));
+        }
+        return [];
+    }
+
+    private function compactRow($row): ?array
+    {
+        if (! is_array($row)) {
+            return null;
+        }
+        $keys = [
+            'id', 'articleNumber', 'article_number', 'ean', 'name', 'price', 'purchasePrice', 'purchase_price',
+            'unit', 'brand', 'color', 'size', 'supplierName', 'supplier_name', 'typeNumber', 'type_number',
+            'typeName', 'type_name', 'modifyDate',
+        ];
+        $out = [];
+        foreach ($keys as $key) {
+            if (array_key_exists($key, $row)) {
+                $out[$key] = $row[$key];
+            }
+        }
+        return $out;
+    }
+
+    private function loadSeedData(string $family): array
     {
         $parentFile = $this->firstExisting([
-            base_path("storage/app/private/kms_scan/parent_payload_{$family}.json"),
-            base_path("storage/app/kms_scan/parent_payload_{$family}.json"),
-            base_path("storage/app/private/kms_scan/live_family_probes/family_live_probe_{$family}_parent_payload.json"),
-            base_path("storage/app/kms_scan/live_family_probes/family_live_probe_{$family}_parent_payload.json"),
+            storage_path('app/private/kms_scan/parent_payload_' . $family . '.json'),
+            storage_path('app/private/kms_scan/live_family_probes/family_live_probe_' . $family . '_parent_payload.json'),
+            storage_path('app/kms_scan/parent_payload_' . $family . '.json'),
         ]);
         $childFile = $this->firstExisting([
-            base_path("storage/app/private/kms_scan/live_family_probes/family_live_probe_{$family}_child_payload.json"),
-            base_path("storage/app/kms_scan/live_family_probes/family_live_probe_{$family}_child_payload.json"),
+            storage_path('app/private/kms_scan/live_family_probes/family_live_probe_' . $family . '_child_payload.json'),
+            storage_path('app/kms_scan/live_family_probes/family_live_probe_' . $family . '_child_payload.json'),
         ]);
         $siblingFile = $this->firstExisting([
-            base_path("storage/app/private/kms_scan/live_family_probes/family_live_probe_{$family}_sibling_payload.json"),
-            base_path("storage/app/kms_scan/live_family_probes/family_live_probe_{$family}_sibling_payload.json"),
+            storage_path('app/private/kms_scan/live_family_probes/family_live_probe_' . $family . '_sibling_payload.json'),
+            storage_path('app/kms_scan/live_family_probes/family_live_probe_' . $family . '_sibling_payload.json'),
         ]);
 
         if (! $parentFile || ! $childFile || ! $siblingFile) {
             return [
                 'ok' => false,
-                'message' => implode("\n", [
-                    'Benodigde seed JSON niet gevonden (parent/child/sibling).',
-                    'Tip: run: php artisan kms:prep:family-live-probe ' . $family . ' --write-json --debug',
-                    'En zorg dat scan-first prerequisites bestaan: kms:scan:combine, erp:families:combine, kms:build:parent-payload.',
-                ]),
+                'message' => 'Benodigde seed JSON niet gevonden. Run eerst kms:prep:family-live-probe ' . $family,
             ];
         }
 
         $parentPayload = json_decode((string) file_get_contents($parentFile), true);
-        $childPayload = json_decode((string) file_get_contents($childFile), true);
-        $siblingPayload = json_decode((string) file_get_contents($siblingFile), true);
-
-        if (! is_array($parentPayload) || ! is_array($childPayload) || ! is_array($siblingPayload)) {
-            return [
-                'ok' => false,
-                'message' => 'Een of meer seed JSON bestanden konden niet worden gedecodeerd.',
-            ];
-        }
-
-        if ($childOpt !== '') {
-            Arr::set($childPayload, 'products.0.article_number', $childOpt);
-            Arr::set($childPayload, 'products.0.articleNumber', $childOpt);
-        }
-        if ($siblingOpt !== '') {
-            Arr::set($siblingPayload, 'products.0.article_number', $siblingOpt);
-            Arr::set($siblingPayload, 'products.0.articleNumber', $siblingOpt);
-        }
-
-        if ($debug) {
-            $this->line('Loaded seed files:');
-            $this->line(' - ' . $parentFile);
-            $this->line(' - ' . $childFile);
-            $this->line(' - ' . $siblingFile);
+        if (is_array($parentPayload) && isset($parentPayload['candidate_parent_payload'])) {
+            $parentPayload = $parentPayload['candidate_parent_payload'];
         }
 
         return [
             'ok' => true,
-            'parent_payload' => $parentPayload,
-            'child_payload' => $childPayload,
-            'sibling_payload' => $siblingPayload,
-            'seed_files' => [
-                'parent' => $parentFile,
-                'child' => $childFile,
-                'sibling' => $siblingFile,
-            ],
+            'files' => [$parentFile, $childFile, $siblingFile],
+            'parent_payload' => is_array($parentPayload) ? $parentPayload : [],
+            'child_payload' => json_decode((string) file_get_contents($childFile), true) ?: [],
+            'sibling_payload' => json_decode((string) file_get_contents($siblingFile), true) ?: [],
         ];
     }
 
@@ -288,80 +297,20 @@ class KmsLiveFamilyCreateUpdate extends Command
                 return $path;
             }
         }
-
         return null;
     }
 
-    private function filterParentOnlyScenarios(array $scenarios): array
+    private function reportPath(string $filename): string
     {
-        foreach ($scenarios as &$scenario) {
-            $steps = is_array($scenario['steps'] ?? null) ? $scenario['steps'] : [];
-            if ($steps === []) {
-                $scenario['steps'] = [];
-                continue;
-            }
-
-            $parentSteps = array_values(array_filter($steps, static fn ($step) => (string) ($step['name'] ?? '') === 'parent'));
-            if ($parentSteps === []) {
-                $parentSteps = [$steps[0]];
-            }
-
-            $scenario['steps'] = $parentSteps;
+        $dir = storage_path('app/private/kms_scan/live_family_probes');
+        if (! is_dir($dir)) {
+            @mkdir($dir, 0777, true);
         }
-        unset($scenario);
-
-        return $scenarios;
+        return $dir . DIRECTORY_SEPARATOR . $filename;
     }
 
-    private function fetchOne(KmsClient $kms, string $article, ?string $ean, bool $debug = false, ?string $correlationId = null): ?array
+    private function sectionLine(string $text): void
     {
-        $res = $kms->post('kms/product/getProducts', [
-            'offset' => 0,
-            'limit' => 5,
-            'articleNumber' => $article,
-        ], $correlationId);
-
-        $items = $this->normalize($res);
-        if ($debug) {
-            $this->line('lookup article=' . $article . ' count=' . count($items));
-        }
-
-        foreach ($items as $item) {
-            if ((string) Arr::get($item, 'articleNumber') === $article) {
-                return $item;
-            }
-        }
-
-        if ($ean !== null && $ean !== '') {
-            $res2 = $kms->post('kms/product/getProducts', [
-                'offset' => 0,
-                'limit' => 5,
-                'ean' => $ean,
-            ], $correlationId);
-            $items2 = $this->normalize($res2);
-            if ($debug) {
-                $this->line('lookup ean=' . $ean . ' count=' . count($items2));
-            }
-            foreach ($items2 as $item) {
-                if ((string) Arr::get($item, 'articleNumber') === $article || (string) Arr::get($item, 'ean') === $ean) {
-                    return $item;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    private function normalize($res): array
-    {
-        if (! is_array($res) || $res === []) {
-            return [];
-        }
-
-        $keys = array_keys($res);
-        $isList = $keys === range(0, count($keys) - 1);
-        $items = $isList ? $res : array_values($res);
-
-        return array_values(array_filter($items, static fn ($row) => is_array($row)));
+        $this->line('---------- ' . $text . ' ----------');
     }
 }

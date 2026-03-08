@@ -40,6 +40,7 @@ class KmsClient
     {
         $baseUrl = rtrim((string) config('kms.base_url'), '/');
         $namespace = trim((string) config('kms.namespace'), '/');
+
         if ($namespace === '') {
             throw new \RuntimeException('KMS namespace missing');
         }
@@ -50,13 +51,19 @@ class KmsClient
         $url = $baseUrl . $restPrefix . $relativePath;
 
         $response = $this->request($correlationId)->post($url, $payload);
+
         if ($response->status() === 401) {
             $this->auth->forgetToken();
             $response = $this->request($correlationId)->post($url, $payload);
         }
 
         if (! $response->successful()) {
-            throw new \RuntimeException("KMS request failed (POST {$relativePath}) HTTP {$response->status()}: {$response->body()}");
+            throw new \RuntimeException(sprintf(
+                'KMS request failed (POST %s) HTTP %d: %s',
+                $relativePath,
+                $response->status(),
+                $response->body()
+            ));
         }
 
         return $response->json() ?? [];

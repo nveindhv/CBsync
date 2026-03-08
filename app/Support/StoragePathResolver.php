@@ -24,18 +24,31 @@ class StoragePathResolver
             }
         }
 
-        throw new \RuntimeException('Path not found in storage resolver: ' . $relative);
+        return $candidates[0];
     }
 
-    public static function globAll(string $pattern): array
+    /**
+     * @return array<int, string>
+     */
+    public static function globAll(string $relativePattern): array
     {
-        $pattern = ltrim(str_replace('\\', '/', $pattern), '/');
+        $relativePattern = ltrim(str_replace('\\', '/', $relativePattern), '/');
 
-        $all = array_merge(
-            glob(storage_path('app/' . $pattern)) ?: [],
-            glob(storage_path('app/private/' . $pattern)) ?: [],
-            glob(storage_path($pattern)) ?: []
-        );
+        $patterns = [
+            storage_path('app/' . $relativePattern),
+            storage_path('app/private/' . $relativePattern),
+            storage_path($relativePattern),
+        ];
+
+        $all = [];
+        foreach ($patterns as $pattern) {
+            $matches = glob($pattern) ?: [];
+            foreach ($matches as $match) {
+                if (is_file($match) || is_dir($match)) {
+                    $all[] = $match;
+                }
+            }
+        }
 
         $all = array_values(array_unique($all));
         sort($all);
@@ -45,10 +58,13 @@ class StoragePathResolver
 
     public static function ensurePrivateDir(string $relativeDir): string
     {
-        $path = storage_path('app/private/' . trim(str_replace('\\', '/', $relativeDir), '/'));
-        if (! is_dir($path)) {
-            mkdir($path, 0777, true);
+        $relativeDir = trim(str_replace('\\', '/', $relativeDir), '/');
+        $dir = storage_path('app/private/' . $relativeDir);
+
+        if (! is_dir($dir)) {
+            mkdir($dir, 0777, true);
         }
-        return $path;
+
+        return $dir;
     }
 }
