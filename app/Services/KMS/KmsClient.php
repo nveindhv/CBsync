@@ -16,21 +16,27 @@ class KmsClient
         return $this->auth->getAccessToken();
     }
 
-    private function request(): PendingRequest
+    private function request(?string $correlationId = null): PendingRequest
     {
         $token = $this->auth->getAccessToken();
 
+        $headers = [
+            'access_token' => $token,
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ];
+
+        if (is_string($correlationId) && trim($correlationId) !== '') {
+            $headers['X-Correlation-Id'] = trim($correlationId);
+        }
+
         return Http::withToken($token)
-            ->withHeaders([
-                'access_token' => $token,
-                'Accept' => 'application/json',
-                'Content-Type' => 'application/json',
-            ])
+            ->withHeaders($headers)
             ->acceptJson()
             ->timeout((int) config('kms.timeout', 30));
     }
 
-    public function post(string $relativePath, array $payload = []): array
+    public function post(string $relativePath, array $payload = [], ?string $correlationId = null): array
     {
         $baseUrl = rtrim((string) config('kms.base_url'), '/');
         $namespace = trim((string) config('kms.namespace'), '/');
@@ -43,10 +49,10 @@ class KmsClient
         $relativePath = '/' . ltrim($relativePath, '/');
         $url = $baseUrl . $restPrefix . $relativePath;
 
-        $response = $this->request()->post($url, $payload);
+        $response = $this->request($correlationId)->post($url, $payload);
         if ($response->status() === 401) {
             $this->auth->forgetToken();
-            $response = $this->request()->post($url, $payload);
+            $response = $this->request($correlationId)->post($url, $payload);
         }
 
         if (! $response->successful()) {

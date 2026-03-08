@@ -1,0 +1,28 @@
+1) Pak deze zip uit in de ROOT van je Laravel app.
+2) Run daarna exact:
+
+composer dump-autoload
+php artisan optimize:clear
+
+# optioneel: check of de nieuwe command zichtbaar is
+php artisan list | findstr kms:prep:family-live-probe
+php artisan list | findstr kms:live:family-createupdate
+
+# scan-first prerequisites
+php artisan kms:scan:products-window --offset=0 --limit=200 --max-pages=50 --dump-json --dump-csv --debug
+php artisan kms:scan:combine --dump-json --dump-csv --debug
+php artisan erp:find:products --prefixes=505050117,505050111,505050096 --take=800 --page-size=200 --offset=0
+php artisan erp:families:combine --dump-json --debug
+php artisan kms:build:parent-payload 505050117 --dump-json --debug
+
+# seed generation
+php artisan kms:prep:family-live-probe 505050117 --write-json --debug
+
+# safe matrix dry-run
+php artisan kms:live:family-createupdate 505050117 --write-json --dry-run --debug
+
+# live probe
+php artisan kms:live:family-createupdate 505050117 --write-json --debug
+
+# parent-only probe
+php artisan kms:live:family-createupdate 505050117 --parent-only --write-json --debug

@@ -1,0 +1,5 @@
+*** Included as reference only. Main delivery is already unpack-ready. ***
+- KmsClient: adds optional correlation id support.
+- KmsLiveFamilyCreateUpdate: adds auto-seed generation + parent-only handling.
+- KmsPrepFamilyLiveProbe: new command.
+- StoragePathResolver: adds globAll helper.
