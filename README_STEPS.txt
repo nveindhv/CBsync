@@ -1,65 +1,53 @@
-KMS FAMILY BOOTSTRAP PATCH BUNDLE
-=================================
+PATCH: succesvolle payload reducer
 
-Dit is een losse patchbundle voor CBsync. Niet automatisch toegepast.
-Kopieer de bestanden handmatig in je projectroot.
+Wat dit doet
+- Voegt 1 nieuwe command toe:
+  php artisan kms:probe:successful-payload-reducer
+- Doel: starten vanaf een al zichtbare / al bewezen create-shape en daarna veld-voor-veld reduceren.
+- Hiermee zie je eindelijk zwart-op-wit welke velden echt nodig zijn voor een zichtbare create.
 
-DOEL
-----
-Deze bundle trekt het project weg van losse probes naar 1 scan-first familieflow:
-1. KMS scans combineren
-2. ERP family dumps combineren
-3. ERP-families tegen KMS-scan mappen
-4. Parent payload opbouwen
-5. Family bootstrap probe draaien
+Belangrijkste antwoord op je vraag
+- Nee: op basis van jullie huidige resultaten is nog NIET bewezen dat jullie een volledig nieuw product kunnen aanmaken waarvan de basis/familiestructuur nog niet bestaat.
+- Wat wel bewezen is:
+  1) createUpdate geeft vaak {"success":true}
+  2) een nieuw sibling binnen een al bestaande echte familie kan zichtbaar worden (100010001099490)
+  3) losse synthetische parent/basis tests worden nog niet zichtbaar
+- Dus de kortste route is nu: reduceren vanaf de WEL-zichtbare create, niet opnieuw rondjes draaien op volledig synthetische parent-creaties.
 
-BESTANDEN IN DEZE ZIP
----------------------
-app/Support/StoragePathResolver.php
-app/Console/Commands/KmsScanCombine.php
-app/Console/Commands/ErpFamiliesCombine.php
-app/Console/Commands/KmsMapErpFamilies.php
-app/Console/Commands/KmsBuildParentPayload.php
-app/Console/Commands/KmsProbeFamilyBootstrap.php
+Plaatsen
+- Kopieer uit deze zip naar je Laravel root en overschrijf:
+  app/Console/Commands/KmsProbeSuccessfulPayloadReducer.php
 
-docs/COMMANDS_TO_RUN.txt
-docs/WHY_THIS_BREAKS_THE_DEADLOCK.txt
-docs/COPY_PASTE_SEQUENCE.txt
-
-PLAATSEN
---------
-Kopieer vanaf de zip-root naar je Laravel projectroot.
-
-Daarna in app/Console/Kernel.php toevoegen aan $commands:
-    \App\Console\Commands\KmsScanCombine::class,
-    \App\Console\Commands\ErpFamiliesCombine::class,
-    \App\Console\Commands\KmsMapErpFamilies::class,
-    \App\Console\Commands\KmsBuildParentPayload::class,
-    \App\Console\Commands\KmsProbeFamilyBootstrap::class,
-
-BELANGRIJK
-----------
-Deze commands zijn bewust scan-first. Dus:
-- primaire waarheid = scanbestanden op disk
-- live KMS artikel-lookups zijn alleen aanvullend
-- storage path mismatch private/public wordt afgevangen
-
-SNELLE STAPPEN
---------------
+Daarna
 1) composer dump-autoload
 2) php artisan optimize:clear
-3) php artisan kms:scan:combine --dump-json --dump-csv --debug
-4) php artisan erp:families:combine --dump-json --debug
-5) php artisan kms:map:erp-families --family=505050117 --dump-json --debug
-6) php artisan kms:build:parent-payload 505050117 --dump-json --debug
-7) php artisan kms:probe:family-bootstrap 505050117 --dump-json --debug
+3) controleer command:
+   php artisan list | findstr kms:probe:successful-payload-reducer
 
-DAARNA HERHALEN VOOR:
-- 505050111
-- 505050096
+Aanbevolen runs
 
-WAT JE MOET VERWACHTEN
-----------------------
-- 505050117 is de beste eerste family omdat daarvan al minstens 1 KMS-variant gezien is.
-- 505050111 en 505050096 lijken ERP-families die nog een parent/bootstrapstap nodig kunnen hebben.
-- Als parent bootstrap faalt, dan heb je eindelijk 1 centrale plek waar de failure zwart-op-wit uitgelogd wordt.
+A. Reducer op de echte succesvolle SIXTON-create
+php artisan kms:probe:successful-payload-reducer 100010001099490 100010001099530 --seed-ean=8991000100019 --new-ean=8991000100057 --new-size=53 --write-json --debug --live
+
+B. Nog een tweede run op dezelfde bewezen familie
+php artisan kms:probe:successful-payload-reducer 100010001099490 100010001099540 --seed-ean=8991000100019 --new-ean=8991000100064 --new-size=54 --write-json --debug --live
+
+C. Derde run voor bevestiging
+php artisan kms:probe:successful-payload-reducer 100010001099490 100010001099550 --seed-ean=8991000100019 --new-ean=8991000100071 --new-size=55 --write-json --debug --live
+
+Wat je moet lezen in de output
+- baseline_success_shape = jullie huidige beste model
+- drop_supplier_name = check of supplier echt nodig is
+- drop_description = check of description echt nodig is
+- drop_type_name / drop_type_number / drop_type_pair = check of type-relatie nodig is
+- drop_color / drop_size / drop_brand / drop_unit = check welke productvelden essentieel zijn
+- minimal_core = kortst logische payload
+- article_ean_name_price_only = harde kale controlerun
+
+Waar de JSON komt
+- storage/app/private/kms_scan/live_family_probes/successful_payload_reducer_<artikel>.json
+
+Interpretatie
+- Als baseline zichtbaar is en een reductie ook zichtbaar blijft, dan is het verwijderde veld NIET verplicht.
+- Zodra een scenario voor het eerst NIET zichtbaar wordt, zit je dicht bij de minimale werkende payload.
+- Pas als we daarna met die minimale payload ook buiten de bestaande familie zichtbaar kunnen creëren, hebben we bewijs voor echt volledig nieuwe families/producten.

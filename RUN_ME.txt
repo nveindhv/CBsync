@@ -1,0 +1,15 @@
+1) Extract this zip into the Laravel project root and overwrite existing files.
+2) Run:
+   composer dump-autoload
+   php artisan optimize:clear
+   php artisan list | findstr kms:probe:existing-family-sibling
+
+3) Re-run exactly these probes:
+
+php artisan kms:probe:existing-family-sibling 100010001099420 100010001099490 --new-ean=8991000100019 --new-size=49 --family-article=10001000109 --basis12=100010001099 --type-name="FAMILY 10001000109" --brand=SIXTON --unit=PAAR --color=taupe --name="SIXTON NISIDA 10037-13, composiet neus + anti-perforatiezool (S3)" --write-json --debug --live
+
+php artisan kms:probe:existing-family-sibling 505050117005400 505050117005490 --new-ean=8995050501171 --new-size=SYN49 --family-article=505050117 --basis12=505050117005 --type-name="TRICORP 402006 (TSJ2000) Softshell" --brand=TRICORP --unit=STK --color="ink donkerblauw" --name="TRICORP 402006 (TSJ2000) Softshell jack" --write-json --debug --live
+
+php artisan kms:probe:existing-family-sibling 505050111001210 505050111001290 --new-ean=8995050501112 --new-size=29 --family-article=505050111 --basis12=505050111001 --type-name="TRICORP 502007 (TQC2000) Werkbroek" --brand=TRICORP --unit=STK --color="navy donkerblauw" --name="TRICORP 502007 (TQC2000) Werkbroek" --write-json --debug --live
+
+4) Paste the raw console output back into chat.
