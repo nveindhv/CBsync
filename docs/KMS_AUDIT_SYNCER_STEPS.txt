@@ -1,0 +1,70 @@
+CBsync KMS audit syncer patch
+
+Bestanden in deze patch:
+- app/Console/Commands/SyncProductsKmsAudit.php
+- docs/KMS_AUDIT_SYNCER_STEPS.txt
+
+Doel:
+- ERP -> KMS producten proberen te synchroniseren
+- verkeerde productclassifications stil overslaan
+- per ERP-regel loggen:
+  - timestamp
+  - page
+  - page_offset
+  - absolute_offset
+  - article
+  - payload
+  - before/after KMS getProducts zichtbaarheid
+  - resultaatstatus
+  - reden
+- onderscheid maken tussen:
+  - UPDATED_VISIBLE
+  - CREATED_VISIBLE
+  - SUCCESS_NOT_VISIBLE
+  - KMS_CREATE_EXCEPTION
+  - SKIPPED_CLASSIFICATION
+  - SKIPPED_CONTAINS
+  - SKIPPED_INACTIVE
+  - SKIPPED_INVALID_ARTICLE
+  - ERP_CLASSIFICATION_ERROR
+  - ERP_FETCH_SINGLE_FAILED
+
+Gebruik:
+1) Zet de inhoud van deze zip in de project-root.
+2) Run:
+   composer dump-autoload
+   php artisan optimize:clear
+3) Check of de command zichtbaar is:
+   php artisan list | findstr kms-audit
+
+Aanbevolen eerste test:
+php artisan sync:products:kms-audit --only-codes=505050367005440,505050367005580 --dry-run --write-json --dump-payloads --debug
+
+Eerste echte live test op een kleine set:
+php artisan sync:products:kms-audit --only-codes=505050367005440,505050367005580 --live --write-json --dump-payloads --debug
+
+Brede scan vanaf ERP paging:
+php artisan sync:products:kms-audit --offset=0 --page-size=200 --max-pages=25 --live --write-json --dump-payloads --debug
+
+Met bevat-filter:
+php artisan sync:products:kms-audit --contains=106101 --offset=0 --page-size=200 --max-pages=25 --live --write-json --dump-payloads --debug
+
+Output locatie:
+storage/app/private/kms_audit_sync/run_YYYYMMDD_HHMMSS/
+
+Belangrijk:
+- classification-mode=web is standaard:
+  - vereist WEB classification
+  - slaat WEB + ZZZZZZZZZ over
+- Als je classifications tijdelijk wilt negeren:
+  php artisan sync:products:kms-audit --classification-mode=none --offset=0 --page-size=200 --max-pages=5 --dry-run --write-json --debug
+
+Snelle interpretatie van resultaat:
+- CREATED_VISIBLE = niet zichtbaar vóór createUpdate, wel zichtbaar ná getProducts verificatie
+- UPDATED_VISIBLE = zichtbaar vóór en ná createUpdate
+- SUCCESS_NOT_VISIBLE = createUpdate gaf geen zichtbare hit terug op artikel/EAN
+
+Als de command niet verschijnt:
+- check namespace/casing van App\Services\Kms\KmsClient
+- check of jullie project nieuwe command classes automatisch laadt
+- als nodig: registreer de class handmatig in app/Console/Kernel.php

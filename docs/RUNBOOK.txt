@@ -1,0 +1,20 @@
+KMS customer/business diagnostic patch v8
+
+Wat zit hierin
+- opgeschoonde kms:business:auth-probe
+- geen tegenstrijdige conclusie meer wanneer list zelf 401 teruggeeft
+- bruikbaar bewijsbestand voor rechtenprobleem op business/createUpdate
+
+Wat jullie runs nu bewezen hebben
+- ERP organisations werkt
+- ERP debtors werkt
+- debtor -> organisation mapping werkt
+- bestaande klanten worden correct als UPDATE herkend
+- kms/business/createUpdate geeft structureel 401 Unauthorized
+
+Commands
+composer dump-autoload
+php artisan optimize:clear
+php artisan sync:customers:kms --erp-resource=debtors --limit=5 --live --write-json --dump-payloads --debug
+php artisan sync:customers:kms --erp-resource=organisations --limit=5 --live --write-json --dump-payloads --debug
+php artisan kms:business:auth-probe 00001 --name="Divers" --debug --write-json

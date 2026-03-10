@@ -1,0 +1,20 @@
+KMS customer sync patch v6
+
+Wat deze patch toevoegt
+- debtors worden nu verrijkt met organisation-data
+- referenceId gebruikt nu debtorCode/organisationCode correct
+- name wordt bij debtors uit organisations gehaald als debtors zelf geen naamveld heeft
+
+Wat nu bewezen is
+- debtors endpoint heeft zelf geen bruikbaar naamveld
+- organisations endpoint heeft wel de naam
+- kms/business/list werkt
+- kms/business/createUpdate geeft 401 Unauthorized
+
+Dus:
+- debtor skipping was mapping
+- write blocker is autorisatie op createUpdate
+
+Commands
+php artisan sync:customers:kms --erp-resource=debtors --limit=5 --live --write-json --dump-payloads --debug
+php artisan sync:customers:kms --erp-resource=organisations --limit=5 --live --write-json --dump-payloads --debug
